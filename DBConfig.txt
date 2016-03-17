@@ -1,5 +1,0 @@
-db_ip=emu.cs.rmit.edu.au
-db_port=1521
-db_sic=GENERAL
-db_user=xxxxxx
-db_password=xxxxxxx
