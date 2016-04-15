@@ -50,7 +50,7 @@ public class S3Application {
 		if (id.length() != MAX_USERID_LENGTH || (type = checkUserType(id)) == S3UserType.UNKNOWN) {
 			System.out.println("Invalid userID");
 		} else {
-			client.sendTask("S3LoginTask", type, id);
+			client.sendTask("S3GetUserTask", type, id);
 		}
 	}
 	
@@ -64,7 +64,7 @@ public class S3Application {
 	
 	public void onRevData( String taskType, List data ) {
 		switch (taskType) {
-		case "S3LoginTask" :
+		case "S3GetUserTask" :
 			onLogin(data);
 			break;
 		default :
