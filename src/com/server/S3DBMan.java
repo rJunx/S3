@@ -44,21 +44,16 @@ public class S3DBMan {
 		}
 	}
 	
-	public ResultSet doQuery( String sql ) {
+	public ResultSet doQuery( String sql ) throws SQLException {
 		if ( con == null ) {
 			System.out.println( "Invalid Connection......" );
 			return null;
 		}
 		
-		try {
-			System.out.println( "doQuery " + sql );
-			PreparedStatement pstm = con.prepareStatement(sql);
-			return pstm.executeQuery();
-			
-		} catch ( SQLException e ) {
-			e.printStackTrace();
-			return null;
-		}
+		System.out.println( "doQuery " + sql );
+		PreparedStatement pstm = con.prepareStatement(sql);
+
+		return (pstm.execute())? pstm.getResultSet() : null;
 	}
 	
 	public void close() {

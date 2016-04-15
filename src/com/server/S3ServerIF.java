@@ -2,6 +2,7 @@ package com.server;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
+import java.sql.SQLException;
 
 import com.client.S3ClientIF;
 
@@ -11,5 +12,5 @@ public interface S3ServerIF extends Remote {
 	
 	void broadcastMessage( String msg ) throws RemoteException;
 	
-	void doTask( String UUID, String className, Object... args ) throws RemoteException;
+	void doTask( String UUID, String className, Object... args ) throws RemoteException, SQLException;
 }

@@ -1,18 +1,17 @@
 package com.common;
 
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-
-import com.server.S3Server;
-
 public class S3DBTestTask extends S3Task {
 
 	public S3DBTestTask(String uuid) {
 		super(uuid);
 		// TODO Auto-generated constructor stub
 	}
+	
+	protected String getSQLStatement() {
+		return "select * from S3TEST";
+	}
 
+	/*
 	@Override
 	protected void _run( S3Server server ) throws SQLException {
 		ResultSet rs = server.getDBMan().doQuery( "select * from S3TEST" );
@@ -26,5 +25,5 @@ public class S3DBTestTask extends S3Task {
 			System.out.println( "Empty ResultSet " );
 		}
 
-	}
+	}*/
 }

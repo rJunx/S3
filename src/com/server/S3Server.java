@@ -4,6 +4,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
+import java.sql.SQLException;
 import java.util.HashMap;
 
 import com.client.S3ClientIF;
@@ -17,7 +18,7 @@ public class S3Server extends UnicastRemoteObject implements S3ServerIF {
 	private S3DBMan dbMan = null;
 	private HashMap<String, S3ClientIF> clients;
 	
-	protected S3Server() throws RemoteException {
+	public S3Server() throws RemoteException {
 		super();
 		// TODO Auto-generated constructor stub
 		//clients = new ArrayList<S3ClientIF>();
@@ -27,7 +28,7 @@ public class S3Server extends UnicastRemoteObject implements S3ServerIF {
 		dbMan = new S3DBMan();
 	}
 	
-	protected void finalize() {
+	public void shutdown() {
 		dbMan.close();
 	}
 	
@@ -59,7 +60,7 @@ public class S3Server extends UnicastRemoteObject implements S3ServerIF {
 	}
 
 	@Override
-	public void doTask(String UUID, String className, Object... args) throws RemoteException {
+	public void doTask(String UUID, String className, Object... args) throws RemoteException, SQLException {
 		// TODO Auto-generated method stub
 		try {
 			Class<?> taskClass = Class.forName("com.common." + className);
@@ -74,8 +75,9 @@ public class S3Server extends UnicastRemoteObject implements S3ServerIF {
 			S3TaskIF task = (S3TaskIF)tcCons[0].newInstance( params );
 			
 			S3ClientIF client = clients.get(UUID);
-			if (client != null)
+			if (client != null) {
 				task.run(client, this);
+			}
 		} catch (ClassNotFoundException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | InstantiationException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
