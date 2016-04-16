@@ -12,6 +12,7 @@ import java.util.UUID;
 import com.server.S3ServerIF;
 
 import company.S3Application;
+import company.S3TaskMsg;
 
 public class S3Client extends UnicastRemoteObject implements S3ClientIF, Runnable {
 	private static final long serialVersionUID = 1L;
@@ -30,7 +31,7 @@ public class S3Client extends UnicastRemoteObject implements S3ClientIF, Runnabl
 		this.id = UUID.randomUUID();
 		
 		server.registerClient( getUUID(), this );
-		app = new S3Application(this);
+		app = new S3Application(getUUID(), server);
 	}
 	
 	protected void finalize() {
@@ -53,9 +54,9 @@ public class S3Client extends UnicastRemoteObject implements S3ClientIF, Runnabl
 		System.out.println( msg );
 	}
 	
-	public void revData( String classType, List data ) throws RemoteException {
+	public void revData( int taskType, List data ) throws RemoteException {
 		// TODO Auto-generated method stub
-		app.onRevData(classType, data);
+		app.onRevData(taskType, data);
 	}
 	
 	public void sendTask(String className, Object... args) {
@@ -85,7 +86,7 @@ public class S3Client extends UnicastRemoteObject implements S3ClientIF, Runnabl
 		
 		try {
 			app.run();
-		} catch ( RemoteException e ) {
+		} catch ( Exception e ) {
 			e.printStackTrace();
 		}
 
@@ -116,6 +117,7 @@ public class S3Client extends UnicastRemoteObject implements S3ClientIF, Runnabl
 //				}
 //			} 
 //		}
-	}
+//	}
 
+	}
 }

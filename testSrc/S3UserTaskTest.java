@@ -1,5 +1,6 @@
 
 
+
 import java.rmi.RemoteException;
 import java.sql.SQLException;
 import java.util.List;
@@ -48,7 +49,7 @@ public class S3UserTaskTest {
 	@Test
 	public void testGet() throws SQLException {
 		String userID = "c0000000003";
-		S3GetUserTask t2 = new S3GetUserTask(uuid.toString(), S3UserType.CUSTOMER, userID);
+		S3GetUserTask t2 = new S3GetUserTask(uuid, S3UserType.CUSTOMER, userID);
 
 		try {
 			t2.run(null, server);
@@ -65,6 +66,9 @@ public class S3UserTaskTest {
 
 			Map tuple = (Map)retList.get(0);
 			String id = (String) tuple.get("ID");
+			
+			System.out.println(retList);
+			
 			Assert.assertEquals(id, userID);
 		} catch (RemoteException e) {
 			// TODO Auto-generated catch block

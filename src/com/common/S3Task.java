@@ -13,7 +13,7 @@ import com.client.S3ClientIF;
 import com.server.S3Server;
 import com.server.S3ServerIF;
 
-public class S3Task implements S3TaskIF {
+public abstract class S3Task implements S3TaskIF {
 	protected String uuid = null;
 	private List retList = null;
 
@@ -30,7 +30,11 @@ public class S3Task implements S3TaskIF {
 		// TODO Auto-generated method stub
 
 			String sql = getSQLStatement();
-			ResultSet rs = ((S3Server) server).getDBMan().doQuery(sql);
+			ResultSet rs = null;
+			if (sql != null&& !sql.equals("")){ 
+				rs = ((S3Server) server).getDBMan().doQuery(sql); 
+			}
+			
 			if (rs != null) {
 				ResultSetMetaData md = rs.getMetaData();
 				int columnCount = md.getColumnCount();
@@ -44,14 +48,8 @@ public class S3Task implements S3TaskIF {
 				}
 
 				rs.close();
-
-				if (client != null) {
-					client.revData(getClass().getName(), retList);
-				}
 			}
 	}
 
-	protected String getSQLStatement() {
-		return null;
-	}
+	protected abstract String getSQLStatement();
 }

@@ -6,9 +6,12 @@ import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.List;
 
 import com.client.S3ClientIF;
 import com.common.S3TaskIF;
+
+import company.S3TaskMsg;
 
 
 public class S3Server extends UnicastRemoteObject implements S3ServerIF {
@@ -63,7 +66,7 @@ public class S3Server extends UnicastRemoteObject implements S3ServerIF {
 	public void doTask(String UUID, String className, Object... args) throws RemoteException, SQLException {
 		// TODO Auto-generated method stub
 		try {
-			Class<?> taskClass = Class.forName("com.common." + className);
+			Class<?> taskClass = Class.forName(className);
 			Constructor<?>[] tcCons = taskClass.getConstructors();
 			
 			Object[] params = new Object[1 + args.length];
@@ -77,6 +80,11 @@ public class S3Server extends UnicastRemoteObject implements S3ServerIF {
 			S3ClientIF client = clients.get(UUID);
 			if (client != null) {
 				task.run(client, this);
+				List retList = task.getRetList();
+				
+				if (retList != null) {
+					client.revData(-1, retList);
+				}
 			}
 		} catch (ClassNotFoundException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | InstantiationException e) {
 			// TODO Auto-generated catch block
@@ -91,5 +99,36 @@ public class S3Server extends UnicastRemoteObject implements S3ServerIF {
 		
 		assert ( clients.get(uuid) == null );
 		System.out.println( "Remove Client " + uuid );
+	}
+
+	@Override
+	public void doTask(String UUID, int taskType, String className, Object... args)
+			throws RemoteException, SQLException {
+		// TODO Auto-generated method stub
+		try {
+			Class<?> taskClass = Class.forName(className);
+			Constructor<?>[] tcCons = taskClass.getConstructors();
+			
+			Object[] params = new Object[1 + args.length];
+			params[0] = UUID;
+			for ( int i = 0; i < args.length; i++ ) {
+				params[i + 1] = args[i];
+			}
+			
+			S3TaskIF task = (S3TaskIF)tcCons[0].newInstance( params );
+			
+			S3ClientIF client = clients.get(UUID);
+			if (client != null) {
+				task.run(client, this);
+				List retList = task.getRetList();
+				
+				if (retList != null) {
+					client.revData(taskType, retList);
+				}
+			}
+		} catch (ClassNotFoundException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | InstantiationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }

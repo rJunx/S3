@@ -9,6 +9,12 @@ public class S3TestTask extends S3Task {
 		System.out.println( a + " " + b );
 	}
 
+	@Override
+	protected String getSQLStatement() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 	/*
 	@Override
 	protected void _run( S3Server server ) {

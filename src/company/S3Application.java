@@ -1,17 +1,21 @@
 package company;
 
 import java.rmi.RemoteException;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Scanner;
-import com.client.S3ClientIF;
+import com.server.S3ServerIF;
 
 public class S3Application {
 	private Scanner scan = new Scanner(System.in);
-	private S3ClientIF client;
 	private static final int MAX_USERID_LENGTH = 11;
 
-	public S3Application(S3ClientIF c) {
-		client = c;
+	private S3ProductController productController;
+	private S3CustomerController customerController;
+	
+	public S3Application(String uuid, S3ServerIF server) {
+		productController = new S3ProductController( uuid, server );
+		customerController = new S3CustomerController( uuid, server );
 	}
 
 	public char menu() {
@@ -25,11 +29,26 @@ public class S3Application {
 		System.out.println("\tReceive Payment                      6");
 		System.out.println("\tPrint Orders                         7");
 		System.out.println("\tLogin                                8");
-		System.out.println("\tExit                                 9");
+		System.out.println("\tShow Products                        9");
+		System.out.println("\tExit                                 e");
 		System.out.println("\n\t**************************************");
 		System.out.print("\tYour choice : ");
 		char ch = scan.nextLine().charAt(0);
 		return ch;
+	}
+	
+	public void waitForRes() {
+		System.out.println("\nPress enter to continue");
+		scan.nextLine();
+	}
+	
+	private void postShowProduct() throws RemoteException, SQLException {
+		productController.postGetAllProduct(S3Const.TASK_SHOW_ALL_PRODUCTS);
+		
+	}
+	
+	private void onShowProduct( List data ) {
+		System.out.println(data);
 	}
 
 	private S3UserType checkUserType(String userID) {
@@ -41,46 +60,35 @@ public class S3Application {
 			return S3UserType.UNKNOWN;
 		}
 	}
-
-	protected void sendLogin() throws RemoteException {
-		System.out.print("Enter userID : ");
-		String id = scan.nextLine();
-		S3UserType type;
-
-		if (id.length() != MAX_USERID_LENGTH || (type = checkUserType(id)) == S3UserType.UNKNOWN) {
-			System.out.println("Invalid userID");
-		} else {
-			client.sendTask("S3LoginTask", type, id);
-		}
-	}
 	
-	protected void onLogin(List data) {
-		if (data.isEmpty()) {
-			System.out.println("User does not exit......");
-		} else {
-			System.out.println(data);
-		}
-	}
-	
-	public void onRevData( String taskType, List data ) {
+	public void onRevData( int taskType, List data ) {
 		switch (taskType) {
-		case "S3LoginTask" :
-			onLogin(data);
+		case S3Const.TASK_SHOW_ALL_PRODUCTS:
+			onShowProduct(data);
 			break;
-		default :
+			
+		default:
 			break;
 		}
+		
+		waitForRes();
 	}
 
-	public void run() throws RemoteException {
+	public void onRevData( S3TaskMsg taskMsg, List data ) {
+		System.out.println(data);
+	}
+	
+	public void run() throws RemoteException, SQLException {
 		char ch;
 		do {
 			ch = menu();
 			switch (ch) {
 			case '8':
-				sendLogin();
+				break;
+			case '9':
+				postShowProduct();
 				break;
 			}
-		} while (ch != '9');
+		} while (ch != 'e');
 	}
 }
