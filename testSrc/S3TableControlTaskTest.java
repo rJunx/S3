@@ -1,12 +1,10 @@
 
 import java.math.BigDecimal;
-import java.rmi.RemoteException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -16,11 +14,10 @@ import org.junit.Test;
 import com.server.S3Server;
 
 import company.S3Const;
-import company.S3TableControlTask;
 import company.S3TableOPType;
+import company.server.S3TableControlTask;
 
 public class S3TableControlTaskTest {
-	private String uuid = UUID.randomUUID().toString();
 	private static S3Server server;
 	
 	@BeforeClass
@@ -55,19 +52,19 @@ public class S3TableControlTaskTest {
 		Map<String, Object> values = new HashMap<String, Object>();
 		values.put(S3Const.TABLE_PRODUCT_STOCK_LV, newStockLv);
 		
-		S3TableControlTask updateTask = new S3TableControlTask(uuid, S3Const.TABLE_PRODUCT, S3TableOPType.INSERT, values, conditions);
+		S3TableControlTask updateTask = new S3TableControlTask(S3Const.TABLE_PRODUCT, S3TableOPType.INSERT, values, conditions);
 		try {
-			updateTask.run(null, server);
+			updateTask.run(server);
 			
-			S3TableControlTask selectTask = new S3TableControlTask(uuid, S3Const.TABLE_PRODUCT, S3TableOPType.SELECT, null, conditions);
-			selectTask.run(null, server);
-			List retList = selectTask.getRetList();
+			S3TableControlTask selectTask = new S3TableControlTask(S3Const.TABLE_PRODUCT, S3TableOPType.SELECT, null, conditions);
+			selectTask.run(server);
+			List retList = (List)selectTask.getResult();
 			
 			Map tuple = (Map)retList.get(0);
 			int lv = ((BigDecimal) tuple.get(S3Const.TABLE_PRODUCT_STOCK_LV)).intValue();
 			
 			Assert.assertEquals(lv, newStockLv);
-		} catch (RemoteException e) {
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -78,11 +75,11 @@ public class S3TableControlTaskTest {
 		String productID = "0000000003";
 		Map<String, Object> m = new HashMap<String, Object>();
 		m.put(S3Const.TABLE_PRODUCT_ID, productID);
-		S3TableControlTask selectTask = new S3TableControlTask(uuid, S3Const.TABLE_PRODUCT, S3TableOPType.SELECT, null, m);
+		S3TableControlTask selectTask = new S3TableControlTask(S3Const.TABLE_PRODUCT, S3TableOPType.SELECT, null, m);
 		
 		try {
-			selectTask.run(null, server);
-			List retList = selectTask.getRetList();
+			selectTask.run(server);
+			List retList = (List)selectTask.getResult();
 			
 			if(retList.size() == 0) {
 				List<Object> values = new ArrayList<Object>();
@@ -94,11 +91,11 @@ public class S3TableControlTaskTest {
 				values.add(0);	//PROMOTION
 				values.add(0);	//DISCOUNT
 				
-				S3TableControlTask createTask = new S3TableControlTask(uuid, S3Const.TABLE_PRODUCT, S3TableOPType.INSERT, values, null);
-				createTask.run(null, server);
+				S3TableControlTask createTask = new S3TableControlTask(S3Const.TABLE_PRODUCT, S3TableOPType.INSERT, values, null);
+				createTask.run(server);
 				
-				selectTask.run(null, server);
-				retList = selectTask.getRetList();
+				selectTask.run(server);
+				retList = (List) selectTask.getResult();
 			}
 			
 			Map tuple = (Map)retList.get(0);
@@ -106,7 +103,7 @@ public class S3TableControlTaskTest {
 			
 			System.out.print(retList);
 			Assert.assertEquals(id, productID);
-		} catch (RemoteException e) {
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

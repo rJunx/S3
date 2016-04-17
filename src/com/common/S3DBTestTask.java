@@ -1,11 +1,6 @@
 package com.common;
 
-public class S3DBTestTask extends S3Task {
-
-	public S3DBTestTask(String uuid) {
-		super(uuid);
-		// TODO Auto-generated constructor stub
-	}
+public class S3DBTestTask extends S3DBTask {
 	
 	protected String getSQLStatement() {
 		return "select * from S3TEST";

@@ -1,4 +1,4 @@
-package company;
+package company.client;
 
 import java.rmi.RemoteException;
 import java.sql.SQLException;
@@ -8,6 +8,9 @@ import java.util.List;
 import java.util.Map;
 
 import com.server.S3ServerIF;
+
+import company.S3Const;
+import company.S3TableOPType;
 
 public class S3ProductController {
 	private S3ServerIF server;

@@ -17,8 +17,7 @@ import com.client.S3ClientIF;
 import com.server.S3Server;
 
 import company.S3Const;
-import company.S3CustomerController;
-import company.S3TaskMsg;
+import company.client.S3CustomerController;
 
 public class S3CustomerControllerTest implements S3ClientIF {
 	private static String uuid = UUID.randomUUID().toString();
@@ -81,9 +80,13 @@ public class S3CustomerControllerTest implements S3ClientIF {
 	}
 
 	@Override
-	public void revData(int classType, List data) throws RemoteException {
+	public void revData(int classType, Object data) throws RemoteException {
 		// TODO Auto-generated method stub
-		Map tuple = (Map)data.get(0);
+		if (data == null) {
+			return;
+		}
+		
+		Map tuple = (Map) ((List)data).get(0);
 		Object value = 0;
 		
 		switch(FLAG) {
@@ -96,7 +99,7 @@ public class S3CustomerControllerTest implements S3ClientIF {
 			Assert.assertEquals(newPoint, value);
 			break;
 		case 2:
-			value = (String) tuple.get(S3Const.TABLE_CUSTOMER_ID);
+			value = (String) tuple.get(S3Const.TABLE_USER_ID);
 			Assert.assertEquals(userID, value);
 			break;
 		default:

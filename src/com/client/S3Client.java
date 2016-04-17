@@ -3,16 +3,11 @@ package com.client;
 import java.lang.reflect.InvocationTargetException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
-import java.sql.ResultSetMetaData;
-import java.util.List;
-import java.util.Map;
 import java.util.Scanner;
 import java.util.UUID;
 
 import com.server.S3ServerIF;
-
-import company.S3Application;
-import company.S3TaskMsg;
+import company.client.S3Application;
 
 public class S3Client extends UnicastRemoteObject implements S3ClientIF, Runnable {
 	private static final long serialVersionUID = 1L;
@@ -54,7 +49,7 @@ public class S3Client extends UnicastRemoteObject implements S3ClientIF, Runnabl
 		System.out.println( msg );
 	}
 	
-	public void revData( int taskType, List data ) throws RemoteException {
+	public void revData( int taskType, Object data ) throws RemoteException {
 		// TODO Auto-generated method stub
 		app.onRevData(taskType, data);
 	}

@@ -6,8 +6,6 @@ import java.sql.SQLException;
 
 import com.client.S3ClientIF;
 
-import company.S3TaskMsg;
-
 public interface S3ServerIF extends Remote {
 	void registerClient( String uuid, S3ClientIF client ) throws RemoteException;
 	void unregisterClient( String uuid ) throws RemoteException;

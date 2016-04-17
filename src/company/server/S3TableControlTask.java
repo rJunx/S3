@@ -1,21 +1,22 @@
-package company;
+package company.server;
 
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import com.common.S3Task;
+import com.common.S3DBTask;
 
-public class S3TableControlTask extends S3Task {
+import company.S3Const;
+import company.S3TableOPType;
+
+public class S3TableControlTask extends S3DBTask {
 	private S3TableOPType opType;
 	private Object opArgs0;
 	private Object opArgs1;
 	private String tableName;
 	
-	public S3TableControlTask(String uuid, String tType, S3TableOPType type, Object args0, Object args1) {
-		super(uuid);
+	public S3TableControlTask(String tType, S3TableOPType type, Object args0, Object args1) {
 		// TODO Auto-generated constructor stub
-		
 		opType = type;
 		opArgs0 = args0;
 		opArgs1 = args1;
@@ -23,7 +24,7 @@ public class S3TableControlTask extends S3Task {
 		tableName = S3Const.TABLE_PREFIX + tType;
 	}
 	
-	protected String getConditionStatement(Map conditions, String link) {
+	protected String getConditionStatement(Map<String, ?> conditions, String link) {
 		String statement = "";
 		
 		if (conditions != null) {
@@ -50,7 +51,7 @@ public class S3TableControlTask extends S3Task {
 		return statement;
 	}
 	
-	protected String select( List attributes, Map conditions ) {
+	protected String select( List<?> attributes, Map<String, ?> conditions ) {
 		String attrs = null;
 		if ( attributes != null ) {
 			int aSize = attributes.size();
@@ -73,7 +74,7 @@ public class S3TableControlTask extends S3Task {
 		return statement;
 	}
 	
-	protected String update(Map data, Map conditions) {
+	protected String update(Map<String, ?> data, Map<String, ?> conditions) {
 		String sets = getConditionStatement(data, ",");
 		String conds = getConditionStatement(conditions, "AND");
 		String statement = String.format("UPDATE %s SET %s", tableName, sets); 
@@ -85,7 +86,7 @@ public class S3TableControlTask extends S3Task {
 		return statement;
 	}
 	
-	protected String insert(List data) {
+	protected String insert(List<?> data) {
 		int size = data.size();
 		String vs = "";
 		
@@ -111,15 +112,15 @@ public class S3TableControlTask extends S3Task {
 		// TODO Auto-generated method stub
 		
 		if (opType == S3TableOPType.UPDATE) {
-			return update( (Map)opArgs0, (Map)opArgs1 );
+			return update( (Map<String, ?>)opArgs0, (Map<String, ?>)opArgs1 );
 		}
 		
 		if (opType == S3TableOPType.SELECT) {
-			return select( (List)opArgs0, (Map)opArgs1 );
+			return select( (List<?>)opArgs0, (Map<String, ?>)opArgs1 );
 		}
 		
 		if (opType == S3TableOPType.INSERT) {
-			return insert( (List)opArgs0 );
+			return insert( (List<?>)opArgs0 );
 		}
 		
 		return null;

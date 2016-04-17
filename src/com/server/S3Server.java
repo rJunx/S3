@@ -1,18 +1,13 @@
 package com.server;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.sql.SQLException;
 import java.util.HashMap;
-import java.util.List;
 
 import com.client.S3ClientIF;
 import com.common.S3TaskIF;
-
-import company.S3TaskMsg;
-
 
 public class S3Server extends UnicastRemoteObject implements S3ServerIF {
 	private static final long serialVersionUID = 1L;
@@ -65,28 +60,27 @@ public class S3Server extends UnicastRemoteObject implements S3ServerIF {
 	@Override
 	public void doTask(String UUID, String className, Object... args) throws RemoteException, SQLException {
 		// TODO Auto-generated method stub
+		S3ClientIF client = clients.get(UUID);
+		
+		if (client == null) {
+			return;
+		}
+		
 		try {
 			Class<?> taskClass = Class.forName(className);
 			Constructor<?>[] tcCons = taskClass.getConstructors();
-			
-			Object[] params = new Object[1 + args.length];
-			params[0] = UUID;
-			for ( int i = 0; i < args.length; i++ ) {
-				params[i + 1] = args[i];
-			}
-			
-			S3TaskIF task = (S3TaskIF)tcCons[0].newInstance( params );
-			
-			S3ClientIF client = clients.get(UUID);
-			if (client != null) {
-				task.run(client, this);
-				List retList = task.getRetList();
-				
-				if (retList != null) {
-					client.revData(-1, retList);
-				}
-			}
-		} catch (ClassNotFoundException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | InstantiationException e) {
+//			
+//			Object[] params = new Object[1 + args.length];
+//			params[0] = UUID;
+//			for ( int i = 0; i < args.length; i++ ) {
+//				params[i + 1] = args[i];
+//			}
+//			
+			S3TaskIF task = (S3TaskIF)tcCons[0].newInstance( args );
+			task.run(this);
+			client.revData(-1, task.getResult());
+
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -105,28 +99,27 @@ public class S3Server extends UnicastRemoteObject implements S3ServerIF {
 	public void doTask(String UUID, int taskType, String className, Object... args)
 			throws RemoteException, SQLException {
 		// TODO Auto-generated method stub
+		S3ClientIF client = clients.get(UUID);
+		
+		if (client == null) {
+			return;
+		}
+		
 		try {
 			Class<?> taskClass = Class.forName(className);
 			Constructor<?>[] tcCons = taskClass.getConstructors();
 			
-			Object[] params = new Object[1 + args.length];
-			params[0] = UUID;
-			for ( int i = 0; i < args.length; i++ ) {
-				params[i + 1] = args[i];
-			}
+//			Object[] params = new Object[1 + args.length];
+//			params[0] = UUID;
+//			for ( int i = 0; i < args.length; i++ ) {
+//				params[i + 1] = args[i];
+//			}
 			
-			S3TaskIF task = (S3TaskIF)tcCons[0].newInstance( params );
+			S3TaskIF task = (S3TaskIF)tcCons[0].newInstance( args );
+			task.run(this);
+			client.revData(taskType, task.getResult());
 			
-			S3ClientIF client = clients.get(UUID);
-			if (client != null) {
-				task.run(client, this);
-				List retList = task.getRetList();
-				
-				if (retList != null) {
-					client.revData(taskType, retList);
-				}
-			}
-		} catch (ClassNotFoundException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | InstantiationException e) {
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

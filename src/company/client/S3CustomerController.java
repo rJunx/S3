@@ -1,4 +1,4 @@
-package company;
+package company.client;
 
 import java.rmi.RemoteException;
 import java.sql.SQLException;
@@ -8,6 +8,9 @@ import java.util.List;
 import java.util.Map;
 
 import com.server.S3ServerIF;
+
+import company.S3Const;
+import company.S3TableOPType;
 
 public class S3CustomerController {
 
@@ -22,7 +25,7 @@ public class S3CustomerController {
 	
 	public void update(String ID, String key, Object value) throws RemoteException, SQLException {
 		Map<String, Object> conditions = new HashMap<String, Object>();
-		conditions.put(S3Const.TABLE_CUSTOMER_ID, ID);
+		conditions.put(S3Const.TABLE_USER_ID, ID);
 		
 		Map<String, Object> values = new HashMap<String, Object>();
 		values.put(key, value);
@@ -49,8 +52,15 @@ public class S3CustomerController {
 	
 	public void onGetCustomerInfoByID(String ID) throws RemoteException, SQLException {
 		Map<String, Object> m = new HashMap<String, Object>();
-		m.put(S3Const.TABLE_CUSTOMER_ID, ID);
+		m.put(S3Const.TABLE_USER_ID, ID);
 		
 		server.doTask(uuid, S3Const.CLASS_TASK_NAME, S3Const.TABLE_CUSTOMER, S3TableOPType.SELECT, null, m);
+	}
+	
+	public void onGetCustomerInfoByID(String ID, int taskType) throws RemoteException, SQLException {
+		Map<String, Object> m = new HashMap<String, Object>();
+		m.put(S3Const.TABLE_USER_ID, ID);
+		
+		server.doTask(uuid, taskType, S3Const.CLASS_TASK_NAME, S3Const.TABLE_CUSTOMER, S3TableOPType.SELECT, null, m);
 	}
 }
