@@ -11,7 +11,7 @@ create table S3T_Customer (
 
 create table S3T_Staff (
   id char(11),
-  type short not null,
+  type int not null,
   PRIMARY KEY (id)
 );
 
