@@ -64,6 +64,13 @@ public class S3ProductController {
 		server.doTask(uuid, S3Const.CLASS_TASK_NAME, S3Const.TABLE_PRODUCT, S3TableOPType.SELECT, null, m);
 	}
 	
+	public void postGetProductInfoByID(String productID, int taskType) throws RemoteException, SQLException {
+		Map<String, Object> m = new HashMap<String, Object>();
+		m.put(S3Const.TABLE_PRODUCT_ID, productID);
+		
+		server.doTask(uuid, taskType, S3Const.CLASS_TASK_NAME, S3Const.TABLE_PRODUCT, S3TableOPType.SELECT, null, m);
+	}
+	
 	public void postGetAllProduct() throws RemoteException, SQLException {
 		server.doTask(uuid, S3Const.CLASS_TASK_NAME, S3Const.TABLE_PRODUCT, S3TableOPType.SELECT, null, null);
 	}
