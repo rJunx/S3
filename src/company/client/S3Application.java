@@ -12,7 +12,7 @@ import com.server.S3ServerIF;
 import company.S3Const;
 import company.S3UserType;
 
-public class S3Application {
+public class S3Application implements S3CustomerMenuIF{
 
 
 	private Scanner scan = new Scanner(System.in);
@@ -22,6 +22,9 @@ public class S3Application {
 	private S3StaffController staffController;
 	private S3OrderItemController orderController;
 	private S3TransactionController transactionController;
+	
+	
+	private S3CustomerMenu customerMenu;
 
 	
 	public S3Application(String uuid, S3ServerIF server) {
@@ -61,14 +64,17 @@ public class S3Application {
 		scan.nextLine();
 	}
 	
-	private void postShowProduct() throws RemoteException, SQLException {
-		productController.postGetAllProduct(S3Const.TASK_SHOW_ALL_PRODUCTS);
+
+	private S3UserType checkUserType(String userID) {
+		if (userID.charAt(0) == 'c') {
+			return S3UserType.CUSTOMER;
+		} else if (userID.charAt(0) == 's') {
+			return S3UserType.STAFF;
+		} else {
+			return S3UserType.UNKNOWN;
+		}
 	}
-	
-	private void onShowProduct( List<?> data ) {
-		System.out.println(data);
-	}
-	
+
 	private void postLogin() throws RemoteException, SQLException {
 	    System.out.print("Enter userID : ");  
 	    String userID = scan.nextLine();
@@ -90,143 +96,134 @@ public class S3Application {
 			System.out.println("Welcome " + ((Map) data.get(0)).get(S3Const.TABLE_USER_ID));
 		}
 	}
-	
-	private S3UserType checkUserType(String userID) {
-		if (userID.charAt(0) == 'c') {
-			return S3UserType.CUSTOMER;
-		} else if (userID.charAt(0) == 's') {
-			return S3UserType.STAFF;
-		} else {
-			return S3UserType.UNKNOWN;
+
+	// ***************************************** "run" ***************************************************************************
+		public void run() throws RemoteException, SQLException {
+			char ch;
+			do {
+				ch = menu();
+				switch (ch) {
+				case '8':
+					postLogin();
+					break;
+				case '9':
+					postShowAllProducts();
+					break;
+				}
+			} while (ch != 'e');
 		}
-	}
 	
-	public void onRevData( int taskType, Object data ) {
-		switch (taskType) {
-		case S3Const.TASK_SHOW_ALL_PRODUCTS:
-			onShowProduct((List<?>)data);
-			break;
-		case S3Const.TASK_LOGIN:
-			onLogin((List<?>)data);
-			break;
-		case S3Const.TASK_SHOW_PROD_BY_ID:
-			onShowProductByID((List<?>) data);
-			break;
-		case S3Const.TASK_SHOW_CUSTOMER_BY_ID:
-			onShowCustomerByID((List<?>) data);
-			break;
-		default:
-			break;
-		}
-		
-		waitForRes();
-	}
-	
-	public void PostCheckDiscount(String prodID) throws RemoteException, SQLException{
-		productController.postGetProductInfoByID(prodID, S3Const.TASK_SHOW_PROD_BY_ID);
-	}
-	
-	///  KB has questions... 
-	public Object onShowProductByID(List data){
-		if (data == null || data.size() == 0) {
-			System.out.println("Product does not exit"); 
-		} else {
-			//  what should I do ....? How can I get the price, discount info out?
-		}
-		return data.get(0);
-	}
-	
-	public double calculatePrice(double originalPrice, double discount){
-		return originalPrice * (1 - discount);
-	}
-	
-	public void run() throws RemoteException, SQLException {
-		char ch;
-		do {
-			ch = menu();
-			switch (ch) {
-			case '8':
-				postLogin();
+	// ***************************************** onRevDate ***************************************************************************
+		public void onRevData( int taskType, Object data ) {
+			switch (taskType) {
+			case S3Const.TASK_SHOW_ALL_PRODUCTS:
+				onShowAllProducts((List<?>)data);
 				break;
-			case '9':
-				postShowProduct();
+			case S3Const.TASK_LOGIN:
+				onLogin((List<?>)data);
 				break;
-			case 'c':
-				inPutProdItems();
+			case S3Const.TASK_SHOW_PROD_BY_ID:
+				onShowProductByID((List<?>) data);
+				break;
+			case S3Const.TASK_SHOW_CUSTOMER_BY_ID:
+				onShowCustomerByID((List<?>) data);
+				break;
+			default:
 				break;
 			}
-		} while (ch != 'e');
+			
+			waitForRes();
+		}
+		
+	// ***************************************** END OF "onRevData" ***************************************************************************	
+		
+	
+	public void postShowAllProducts() throws RemoteException, SQLException {
+		productController.postGetAllProduct(S3Const.TASK_SHOW_ALL_PRODUCTS);
+	}
+	
+	public void onShowAllProducts( List<?> data ) {
+		ArrayList<Product> results = new ArrayList<Product>();
+		String barcode;
+		String name;
+		double price;
+		int promotion;
+		double discount;
+		int stockLv;
+		int replenishLv;
+		String supplier;
+		for(int i = 0; i < data.size(); i++){
+			Map row = (Map)data.get(i);
+			barcode = (String)row.get(S3Const.TABLE_PRODUCT_ID);
+			name = (String)row.get(S3Const.TABLE_PRODUCT_NAME);
+			price = (double)row.get(S3Const.TABLE_PRODUCT_PRICE);
+			promotion = (int)row.get(S3Const.TABLE_PRODUCT_PROMOTION);
+			discount = (double)row.get(S3Const.TABLE_PRODUCT_DISCOUNT);
+			stockLv = (int)row.get(S3Const.TABLE_PRODUCT_STOCK_LV);
+			replenishLv = (int)row.get(S3Const.TABLE_PRODUCT_REPLENISH_LV);
+			supplier = (String)row.get(S3Const.TABLE_PRODUCT_SUPPLIER);
+			Product prod = new Product(barcode, name, price, promotion, discount, stockLv, replenishLv, supplier);
+			results.add(prod);
+		}
+		customerMenu.onRevData(S3Const.TASK_SHOW_ALL_PRODUCTS, results) ;
 	}
 	
 
 	
+	public void postShowProductByID(String productID) throws RemoteException, SQLException{
+		productController.postGetProductInfoByID(productID, S3Const.TASK_SHOW_PROD_BY_ID);
+	}
+	
+	public void onShowProductByID(List data){
+		ArrayList<Product> results = new ArrayList<Product>();
+		String barcode;
+		String name;
+		double price;
+		int promotion;
+		double discount;
+		int stockLv;
+		int replenishLv;
+		String supplier;
+		for(int i = 0; i < data.size(); i++){
+			Map row = (Map)data.get(i);
+			barcode = (String)row.get(S3Const.TABLE_PRODUCT_ID);
+			name = (String)row.get(S3Const.TABLE_PRODUCT_NAME);
+			price = (double)row.get(S3Const.TABLE_PRODUCT_PRICE);
+			promotion = (int)row.get(S3Const.TABLE_PRODUCT_PROMOTION);
+			discount = (double)row.get(S3Const.TABLE_PRODUCT_DISCOUNT);
+			stockLv = (int)row.get(S3Const.TABLE_PRODUCT_STOCK_LV);
+			replenishLv = (int)row.get(S3Const.TABLE_PRODUCT_REPLENISH_LV);
+			supplier = (String)row.get(S3Const.TABLE_PRODUCT_SUPPLIER);
+			Product prod = new Product(barcode, name, price, promotion, discount, stockLv, replenishLv, supplier);
+			results.add(prod);
+		}
+		customerMenu.onRevData(S3Const.TASK_SHOW_PROD_BY_ID, results) ;
+	}
+
+
 
 	public void postShowCustomerByID(String custID) throws RemoteException, SQLException{
 		customerController.onGetCustomerInfoByID(custID, S3Const.TASK_SHOW_CUSTOMER_BY_ID);
 	} 
 
 	public void onShowCustomerByID(List data){
-		if (data == null || data.size() == 0) {
-			System.out.println("Customer does not exit"); 
-		} else {
-			// same question as the one at "onShowProductByID";
-			// it looks like that I have to create individual class for Product, Customer and Staff...
-		}
+		Map row = (Map)data.get(0);
+		String id = (String)row.get(S3Const.TABLE_USER_ID);
+		double balance = (double)row.get(S3Const.TABLE_CUSTOMER_CASH);
+		int points = (int)row.get(S3Const.TABLE_CUSTOMER_POINT);
+		Customer targetCust = new Customer(id, balance, points);
+		customerMenu.onRevData(S3Const.TASK_SHOW_CUSTOMER_BY_ID, targetCust);
 	}
 	
 	
-// -------------------------------------------------- Added by KB -------------------------------------
-	//  ------ to show all the product IDs
+
+
+
+
 	
 	
-	
-	
-	
-	
-	
-	
-	
-	//-------To input the product items
-	// Note that "InputMismatchException" could be avoided in GUI at later stage
-	public HashMap<String, Double> inPutProdItems(){
-		Scanner scan = new Scanner(System.in);
-		String prodId;
-		double quantity;
-		HashMap<String, Double> prodInCart = new HashMap<String, Double>();
-		do{
-			System.out.println("Please input the code bar, or type * to finish.");
-			prodId = scan.next();
-			System.out.println();
-			System.out.println("Please input the quantity (copies/weight)");
-			quantity = scan.nextDouble();
-			
-			// check if the product has been input or not
-			if(prodInCart.containsKey(prodId)){
-				double oldQty = prodInCart.get(prodId);
-				double newQty = oldQty + quantity;
-				prodInCart.put(prodId, newQty);
-			}else
-				prodInCart.put(prodId, quantity);
-		}while(prodId != "*");
-		return prodInCart;
-	}
-	
-	// ------Remove items from the selected list
-	
-	
-	
-	
-	
-	// ------To get the product price info of the selected products
-	
-	
-	
-	
-	// ----- Transaction-related calculation--------
-	
-	public double priceAfterDiscount(double price, double discount){
-		return price*(1-discount);
-	}
+// ----- Transaction-related calculation--------
+
 	
 	public double checkPromotionRate(int planID, double qty){
 		if(qty > 30){
@@ -238,8 +235,22 @@ public class S3Application {
 		}else 
 			return 0.0;
 	}
+
 	
-	
+	public double priceAfterDiscount(double price, double discount){
+		return price*(1-discount);
+	}
+		
+	public double priceAfterPromotion(int promotion, double qty, double price){
+		return (1 - checkPromotionRate(promotion, qty)) * price; 
+	}
+
+	public double priceAfterCustPoints(int points, double price){
+		if((price - (int)(points/20)* 5) >= 0)
+			return (price - (int)(points/20)* 5);
+		else 
+			return 0.0;
+	}
 	
 	// to get the total price based on the given (product + qty)
 	public double getTotalPrice(HashMap<Product, Double> orderList, int custPoints){
@@ -258,18 +269,30 @@ public class S3Application {
 		cost = priceAfterCustPoints(custPoints, cost);
 		return cost;
 	}
-	
-	public double priceAfterCustPoints(int points, double price){
-		if((price - (int)(points/20)* 5) >= 0)
-			return (price - (int)(points/20)* 5);
-		else 
-			return 0.0;
+
+	@Override
+	public double calcTotalCost(ArrayList<Product> prodInCart, Customer customer) {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 
-	public double priceAfterPromotion(int promotion, double qty, double price){
-		return (1 - checkPromotionRate(promotion, qty)) * price; 
+	@Override
+	public void postShowSaleStaffByID(String staffID) throws RemoteException, SQLException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void postUpdateCustomerByID(Customer customer) throws RemoteException, SQLException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void postUpdateProductStockLevel(ArrayList<Product> products) throws RemoteException, SQLException {
+		// TODO Auto-generated method stub
+		
 	}
 	
-	// ------ 
 
 }
