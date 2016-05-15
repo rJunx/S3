@@ -21,7 +21,7 @@ public class Customer {
 	// accessor
 	public String getId(){return id;}
 	public double getBalance(){return balance;}
-	public int point(){return point;}
+	public int getPoint(){return point;}
 	
 	// mutator
 	public void topUpBalance(double topUp){balance += topUp;}

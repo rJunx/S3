@@ -2,6 +2,7 @@ package company.client;
 
 import java.rmi.RemoteException;
 import java.sql.SQLException;
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -13,9 +14,7 @@ import company.S3Const;
 import company.S3UserType;
 
 public class S3Application implements S3CustomerMenuIF{
-
-
-	private Scanner scan = new Scanner(System.in);
+	
 
 	private S3ProductController productController;
 	private S3CustomerController customerController;
@@ -23,10 +22,15 @@ public class S3Application implements S3CustomerMenuIF{
 	private S3OrderItemController orderController;
 	private S3TransactionController transactionController;
 	
-	
-	private S3CustomerMenu customerMenu;
+	public ArrayList<Product> productList = new ArrayList<Product>();
+	public ArrayList<Customer> customerList = new ArrayList<Customer>();
+	public ArrayList<Staff> staffList = new ArrayList<Staff>();
+	public ArrayList<Transaction> transactList = new ArrayList<Transaction>();
+	public ArrayList<Supplier> supplierList = new ArrayList<Supplier>();
+	public ArrayList<Supply> supplyList = new ArrayList<Supply>();
+	public ArrayList<OrderItem> orderItemList = new ArrayList<OrderItem>();
 
-	
+	// constructor
 	public S3Application(String uuid, S3ServerIF server) {
 		productController = new S3ProductController( uuid, server );
 		customerController = new S3CustomerController( uuid, server );
@@ -34,6 +38,19 @@ public class S3Application implements S3CustomerMenuIF{
 		orderController = new S3OrderItemController(uuid, server);
 		transactionController = new S3TransactionController(uuid, server);
 	}
+	
+	// accessors
+	public ArrayList<Product> getProductList(){return productList;}
+	public ArrayList<Customer> getCustomerList(){return customerList;}
+	public ArrayList<Staff> getStaffList(){return staffList;}
+	public ArrayList<Transaction> getTransactionList(){return transactList;}
+	public ArrayList<Supplier> getSupplierList(){return supplierList;}
+	public ArrayList<Supply> getSupplyList(){return supplyList;}
+	public ArrayList<OrderItem> getOrderItemList(){return orderItemList;}
+	
+//	----------------------------------Joon's demo -------------------------------------
+
+	private Scanner scan = new Scanner(System.in);
 	
 	public static void changeBulkSalePlan(int planNo, int planItem, double value){
 		S3OrderItemController.bulkSalePlan[planNo-1][planItem-1] = value;
@@ -63,7 +80,7 @@ public class S3Application implements S3CustomerMenuIF{
 		System.out.println("\nPress enter to continue");
 		scan.nextLine();
 	}
-	
+// -------------------------------------------------------------------------------------------
 
 	private S3UserType checkUserType(String userID) {
 		if (userID.charAt(0) == 'c') {
@@ -81,9 +98,9 @@ public class S3Application implements S3CustomerMenuIF{
 	    S3UserType userType = checkUserType(userID);
 	    
 	    if (userType == S3UserType.CUSTOMER) {
-	    	customerController.onGetCustomerInfoByID(userID, S3Const.TASK_LOGIN);
+	    	customerController.onGetCustomerInfoByID(userID, S3Const.TASK_SHOW_CUSTOMER_BY_ID);
 	    } else if (userType == S3UserType.STAFF) {
-	    	staffController.onGetStaffInfoByID(userID, S3Const.TASK_LOGIN);
+	    	staffController.onGetStaffInfoByID(userID, S3Const.TASK_SHOW_STAFF_BY_ID);
 	    } else {
 	    	System.out.println("Invalid userID"); 
 	    }
@@ -97,8 +114,7 @@ public class S3Application implements S3CustomerMenuIF{
 		}
 	}
 
-	// ***************************************** "run" ***************************************************************************
-		public void run() throws RemoteException, SQLException {
+	public void run() throws RemoteException, SQLException {
 			char ch;
 			do {
 				ch = menu();
@@ -113,14 +129,14 @@ public class S3Application implements S3CustomerMenuIF{
 			} while (ch != 'e');
 		}
 	
-	// ***************************************** onRevDate ***************************************************************************
+// ***************************************** onRevDate ***************************************************************************
 		public void onRevData( int taskType, Object data ) {
 			switch (taskType) {
 			case S3Const.TASK_SHOW_ALL_PRODUCTS:
 				onShowAllProducts((List<?>)data);
 				break;
-			case S3Const.TASK_LOGIN:
-				onLogin((List<?>)data);
+			case S3Const.TASK_SHOW_STAFF_BY_ID:
+				onShowStaffByID((List<?>) data);
 				break;
 			case S3Const.TASK_SHOW_PROD_BY_ID:
 				onShowProductByID((List<?>) data);
@@ -128,103 +144,151 @@ public class S3Application implements S3CustomerMenuIF{
 			case S3Const.TASK_SHOW_CUSTOMER_BY_ID:
 				onShowCustomerByID((List<?>) data);
 				break;
+			case S3Const.TASK_SHOW_TRANSACTION_BY_ID:
+				postShowTransactionByDate((List<?>) data);
+				break;
 			default:
 				break;
 			}
-			
-			waitForRes();
 		}
 		
-	// ***************************************** END OF "onRevData" ***************************************************************************	
+// ***************************************** END OF "onRevData" ***************************************************************************	
 		
-	
+	// Get all the product information
 	public void postShowAllProducts() throws RemoteException, SQLException {
 		productController.postGetAllProduct(S3Const.TASK_SHOW_ALL_PRODUCTS);
 	}
 	
 	public void onShowAllProducts( List<?> data ) {
-		ArrayList<Product> results = new ArrayList<Product>();
-		String barcode;
-		String name;
-		double price;
-		int promotion;
-		double discount;
-		int stockLv;
-		int replenishLv;
-		String supplier;
-		for(int i = 0; i < data.size(); i++){
-			Map row = (Map)data.get(i);
-			barcode = (String)row.get(S3Const.TABLE_PRODUCT_ID);
-			name = (String)row.get(S3Const.TABLE_PRODUCT_NAME);
-			price = (double)row.get(S3Const.TABLE_PRODUCT_PRICE);
-			promotion = (int)row.get(S3Const.TABLE_PRODUCT_PROMOTION);
-			discount = (double)row.get(S3Const.TABLE_PRODUCT_DISCOUNT);
-			stockLv = (int)row.get(S3Const.TABLE_PRODUCT_STOCK_LV);
-			replenishLv = (int)row.get(S3Const.TABLE_PRODUCT_REPLENISH_LV);
-			supplier = (String)row.get(S3Const.TABLE_PRODUCT_SUPPLIER);
-			Product prod = new Product(barcode, name, price, promotion, discount, stockLv, replenishLv, supplier);
-			results.add(prod);
+		if(data != null && data.size() != 0){
+			String barcode;
+			String name;
+			double price;
+			int promotion;
+			double discount;
+			int stockLv;
+			int replenishLv;
+			String supplier;
+			
+			productList.clear();
+			
+			for(int i = 0; i < data.size(); i++){
+				Map row = (Map)data.get(i);
+				barcode = (String)row.get(S3Const.TABLE_PRODUCT_ID);
+				name = (String)row.get(S3Const.TABLE_PRODUCT_NAME);
+				price = (double)row.get(S3Const.TABLE_PRODUCT_PRICE);
+				promotion = (int)row.get(S3Const.TABLE_PRODUCT_PROMOTION);
+				discount = (double)row.get(S3Const.TABLE_PRODUCT_DISCOUNT);
+				stockLv = (int)row.get(S3Const.TABLE_PRODUCT_STOCK_LV);
+				replenishLv = (int)row.get(S3Const.TABLE_PRODUCT_REPLENISH_LV);
+				supplier = (String)row.get(S3Const.TABLE_PRODUCT_SUPPLIER);
+				Product prod = new Product(barcode, name, price, promotion, discount, stockLv, replenishLv, supplier);
+				productList.add(prod);
+			}
 		}
-		customerMenu.onRevData(S3Const.TASK_SHOW_ALL_PRODUCTS, results) ;
 	}
 	
 
-	
+	// Get one product information by the given ID
 	public void postShowProductByID(String productID) throws RemoteException, SQLException{
 		productController.postGetProductInfoByID(productID, S3Const.TASK_SHOW_PROD_BY_ID);
 	}
 	
-	public void onShowProductByID(List data){
-		ArrayList<Product> results = new ArrayList<Product>();
-		String barcode;
-		String name;
-		double price;
-		int promotion;
-		double discount;
-		int stockLv;
-		int replenishLv;
-		String supplier;
-		for(int i = 0; i < data.size(); i++){
-			Map row = (Map)data.get(i);
-			barcode = (String)row.get(S3Const.TABLE_PRODUCT_ID);
-			name = (String)row.get(S3Const.TABLE_PRODUCT_NAME);
-			price = (double)row.get(S3Const.TABLE_PRODUCT_PRICE);
-			promotion = (int)row.get(S3Const.TABLE_PRODUCT_PROMOTION);
-			discount = (double)row.get(S3Const.TABLE_PRODUCT_DISCOUNT);
-			stockLv = (int)row.get(S3Const.TABLE_PRODUCT_STOCK_LV);
-			replenishLv = (int)row.get(S3Const.TABLE_PRODUCT_REPLENISH_LV);
-			supplier = (String)row.get(S3Const.TABLE_PRODUCT_SUPPLIER);
-			Product prod = new Product(barcode, name, price, promotion, discount, stockLv, replenishLv, supplier);
-			results.add(prod);
+	public void onShowProductByID(List<?> data){
+		if(data != null && data.size() != 0){
+			String barcode;
+			String name;
+			double price;
+			int promotion;
+			double discount;
+			int stockLv;
+			int replenishLv;
+			String supplier;
+			
+			productList.clear();
+			for(int i = 0; i < data.size(); i++){
+				Map row = (Map)data.get(i);
+				barcode = (String)row.get(S3Const.TABLE_PRODUCT_ID);
+				name = (String)row.get(S3Const.TABLE_PRODUCT_NAME);
+				price = (double)row.get(S3Const.TABLE_PRODUCT_PRICE);
+				promotion = (int)row.get(S3Const.TABLE_PRODUCT_PROMOTION);
+				discount = (double)row.get(S3Const.TABLE_PRODUCT_DISCOUNT);
+				stockLv = (int)row.get(S3Const.TABLE_PRODUCT_STOCK_LV);
+				replenishLv = (int)row.get(S3Const.TABLE_PRODUCT_REPLENISH_LV);
+				supplier = (String)row.get(S3Const.TABLE_PRODUCT_SUPPLIER);
+				Product prod = new Product(barcode, name, price, promotion, discount, stockLv, replenishLv, supplier);
+				productList.add(prod);
+			}
 		}
-		customerMenu.onRevData(S3Const.TASK_SHOW_PROD_BY_ID, results) ;
 	}
 
 
-
+	// Get one customer information by the given ID
 	public void postShowCustomerByID(String custID) throws RemoteException, SQLException{
 		customerController.onGetCustomerInfoByID(custID, S3Const.TASK_SHOW_CUSTOMER_BY_ID);
 	} 
 
-	public void onShowCustomerByID(List data){
-		Map row = (Map)data.get(0);
-		String id = (String)row.get(S3Const.TABLE_USER_ID);
-		double balance = (double)row.get(S3Const.TABLE_CUSTOMER_CASH);
-		int points = (int)row.get(S3Const.TABLE_CUSTOMER_POINT);
-		Customer targetCust = new Customer(id, balance, points);
-		customerMenu.onRevData(S3Const.TASK_SHOW_CUSTOMER_BY_ID, targetCust);
+	public void onShowCustomerByID(List<?> data){
+		if(data != null && data.size() != 0){
+			Map row = (Map)data.get(0);
+			String id = (String)row.get(S3Const.TABLE_USER_ID);
+			double balance = (double)row.get(S3Const.TABLE_CUSTOMER_CASH);
+			int points = (int)row.get(S3Const.TABLE_CUSTOMER_POINT);
+			Customer targetCust = new Customer(id, balance, points);
+			customerList.clear();
+			customerList.add(targetCust);
+		}
 	}
 	
+	//	Get one staff member information by the given ID
+	public void postShowStaffByID(String staffID) throws RemoteException, SQLException{
+		customerController.onGetCustomerInfoByID(staffID, S3Const.TASK_SHOW_STAFF_BY_ID);
+	}
 	
+	public void onShowStaffByID(List<?> data){
+		if(data.size() != 0){
+			Map row = (Map)data.get(0);
+			String id = (String)row.get(S3Const.TABLE_USER_ID);
+			int type = (int)row.get(S3Const.TABLE_STAFF_TYPE);
+			Staff targetStaff = new Staff(id,type);
+			staffList.clear();
+			staffList.add(targetStaff);
+		}
+	}
 
+	// Get transaction on a given date
+	public void postShowTransactionByDate(Date date)throws RemoteException, SQLException{
+	// ?????????????????   util.Date converted to sql.date
+		java.sql.Date sqlDate = new java.sql.Date(date.getTime());
+		transactionController.getTransactionByDate(sqlDate, S3Const.TASK_SHOW_TRANSACTION_BY_ID);
+	}
 
-
-
+	public void postShowTransactionByDate(List<?> data){
+		if(data.size() != 0){
+			String id;
+			double cost;
+			Date date;
+			String custID;
+			
+			transactList.clear();
+			
+			for(int i = 0; i < data.size(); i++){
+				Map row = (Map)data.get(i);
+				id = (String)row.get(S3Const.TABLE_TRANSACTION_ID);
+				cost = (double)row.get(S3Const.TABLE_TRANSACTION_COST);
+				// !!!!!!!!! Date-related
+				date = (Date)row.get(S3Const.TABLE_TRANSACTION_DATE);
+				custID = (String)row.get(S3Const.TABLE_TRANSACTION_CUST_ID);
+				Transaction transaction = new Transaction(id, cost, date, custID);
+				
+				transactList.add(transaction);
+			}
+		}
+	}
 	
 	
 // ----- Transaction-related calculation--------
 
-	
 	public double checkPromotionRate(int planID, double qty){
 		if(qty > 30){
 			return S3OrderItemController.bulkSalePlan[planID][2];
@@ -235,7 +299,6 @@ public class S3Application implements S3CustomerMenuIF{
 		}else 
 			return 0.0;
 	}
-
 	
 	public double priceAfterDiscount(double price, double discount){
 		return price*(1-discount);
