@@ -38,12 +38,25 @@ create table S3T_Transation (
   PRIMARY KEY (id)
 );
 
+create table S3T_Supplier(
+	id char(10),
+	e_mail varchar(100)
+)；
+
+create table S3T_Supply(
+	FOREIGN KEY (supplier_id) REFERENCES S3T_Supplier(id),
+	FOREIGN KEY (prod_barcode) REFERENCES S3T_Product(barcode),
+	quantity double not null,
+	supply_date date not null,
+	PRIMARY KEY (prod_barcode, supplier_id)
+)；
+
 create table S3T_OrderItem(
 	FOREIGN KEY (trans_id) REFERENCES S3T_Transation(id),
 	FOREIGN KEY (prod_barcode) REFERENCES S3T_Product(barcode),
 	quantity double not null,
 	PRIMARY KEY (prod_barcode, trans_id)
-)
+)；
 
 
 INSERT INTO S3T_Customer values ('c0000000001', 0, 0);

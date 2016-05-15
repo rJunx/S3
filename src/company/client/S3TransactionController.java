@@ -33,11 +33,11 @@ public class S3TransactionController {
 		server.doTask(uuid, S3Const.CLASS_TASK_NAME, S3Const.TABLE_TRANSACTION, S3TableOPType.INSERT, values, null);
 	}
 	
-	public void getTransactionByDate(java.sql.Date date) throws RemoteException, SQLException{
+	public void getTransactionByDate(java.sql.Date date, int taskType) throws RemoteException, SQLException{
 		Map<String, Object> condition = new HashMap<String, Object>();
 		condition.put(S3Const.TABLE_TRANSACTION_DATE, date);
 		
-		server.doTask(uuid, S3Const.CLASS_TASK_NAME, S3Const.TABLE_TRANSACTION, S3TableOPType.SELECT, null, condition);
+		server.doTask(uuid, taskType, S3Const.CLASS_TASK_NAME, S3Const.TABLE_TRANSACTION, S3TableOPType.SELECT, null, condition);
 	}
 	
 	
