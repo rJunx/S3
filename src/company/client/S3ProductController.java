@@ -17,7 +17,6 @@ public class S3ProductController {
 	private String uuid;
 	
 	public S3ProductController(String cUUID, S3ServerIF s) {
-		// TODO Auto-generated constructor stub
 		server = s;
 		uuid = cUUID;
 	}
@@ -30,6 +29,20 @@ public class S3ProductController {
 		values.put(key, value);
 		
 		server.doTask(uuid, S3Const.CLASS_TASK_NAME, S3Const.TABLE_PRODUCT, S3TableOPType.UPDATE, values, conditions);
+	}
+	
+	public void update(String productID, int taskType, String key, Object value) throws RemoteException, SQLException {
+		Map<String, Object> conditions = new HashMap<String, Object>();
+		conditions.put(S3Const.TABLE_PRODUCT_ID, productID);
+		
+		Map<String, Object> values = new HashMap<String, Object>();
+		values.put(key, value);
+		
+		server.doTask(uuid, taskType, S3Const.CLASS_TASK_NAME, S3Const.TABLE_PRODUCT, S3TableOPType.UPDATE, values, conditions);
+	}
+	
+	public void updatePrice(String productID, double value, int taskType) throws RemoteException, SQLException {
+		update(productID, taskType, S3Const.TABLE_PRODUCT_PRICE, value);
 	}
 	
 	public void updatePrice(String productID, double value) throws RemoteException, SQLException {
@@ -56,16 +69,12 @@ public class S3ProductController {
 		
 		server.doTask(uuid, S3Const.CLASS_TASK_NAME, S3Const.TABLE_PRODUCT, S3TableOPType.INSERT, values, null);
 	}
-	
-	public void postGetProductInfoByID(String productID) throws RemoteException, SQLException {
-		Map<String, Object> m = new HashMap<String, Object>();
-		m.put(S3Const.TABLE_PRODUCT_ID, productID);
+
+	public void postGetProductInfoByID(String productID, int taskType) throws RemoteException, SQLException {
+		Map<String, Object> conditions = new HashMap<String, Object>();
+		conditions.put(S3Const.TABLE_PRODUCT_ID, productID);
 		
-		server.doTask(uuid, S3Const.CLASS_TASK_NAME, S3Const.TABLE_PRODUCT, S3TableOPType.SELECT, null, m);
-	}
-	
-	public void postGetAllProduct() throws RemoteException, SQLException {
-		server.doTask(uuid, S3Const.CLASS_TASK_NAME, S3Const.TABLE_PRODUCT, S3TableOPType.SELECT, null, null);
+		server.doTask(uuid, taskType, S3Const.CLASS_TASK_NAME, S3Const.TABLE_PRODUCT, S3TableOPType.SELECT, null, conditions);
 	}
 	
 	public void postGetAllProduct(int taskType) throws RemoteException, SQLException {

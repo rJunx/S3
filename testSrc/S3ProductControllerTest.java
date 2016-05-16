@@ -59,28 +59,28 @@ public class S3ProductControllerTest implements S3ClientIF {
 	public void testUpdatePrice() throws RemoteException, SQLException {
 		FLAG = 0;
 		controller.updatePrice(productID, newPrice);
-		controller.postGetProductInfoByID(productID);
+		controller.postGetProductInfoByID(productID, S3Const.TASK_SHOW_PROD_BY_ID);
 	}
 	
 	@Test
 	public void testUpdateStockLevel() throws RemoteException, SQLException {
 		FLAG = 1;
 		controller.updateStockLevel(productID, newStockLv);
-		controller.postGetProductInfoByID(productID);
+		controller.postGetProductInfoByID(productID, S3Const.TASK_SHOW_PROD_BY_ID);
 	}
 	
 	@Test
 	public void testUpdateReplenishLevel() throws RemoteException, SQLException {
 		FLAG = 2;
 		controller.updateReplenishLevel(productID, newRepenishLv);
-		controller.postGetProductInfoByID(productID);
+		controller.postGetProductInfoByID(productID, S3Const.TASK_SHOW_PROD_BY_ID);
 	}
 
 	@Test
 	public void testSelect() throws RemoteException, SQLException {
 		FLAG = 3;
 
-		controller.postGetProductInfoByID(productID);
+		controller.postGetProductInfoByID(productID, S3Const.TASK_SHOW_PROD_BY_ID);
 	}
 	
 	@Test
@@ -88,7 +88,7 @@ public class S3ProductControllerTest implements S3ClientIF {
 		FLAG = 4;
 
 		controller.create("0000000004", "Product_4", newPrice, newStockLv, newRepenishLv, 0, 0);
-		controller.postGetProductInfoByID("0000000004");
+		controller.postGetProductInfoByID("0000000004", S3Const.TASK_SHOW_PROD_BY_ID);
 	}
 	
 	@Override

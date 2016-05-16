@@ -56,21 +56,21 @@ public class S3CustomerControllerTest implements S3ClientIF {
 	public void testUpdateCash() throws RemoteException, SQLException {
 		FLAG = 0;
 		controller.updateCash(userID, newCash);
-		controller.onGetCustomerInfoByID(userID);
+		controller.onGetCustomerInfoByID(userID, S3Const.TASK_SHOW_CUSTOMER_BY_ID);
 	}
 	
 	@Test
 	public void testUpdatePoint() throws RemoteException, SQLException {
 		FLAG = 1;
 		controller.updatePoint(userID, newPoint);
-		controller.onGetCustomerInfoByID(userID);
+		controller.onGetCustomerInfoByID(userID, S3Const.TASK_SHOW_CUSTOMER_BY_ID);
 	}
 	
 	@Test
 	public void testSelect() throws RemoteException, SQLException {
 		FLAG = 2;
 
-		controller.onGetCustomerInfoByID(userID);
+		controller.onGetCustomerInfoByID(userID, S3Const.TASK_SHOW_CUSTOMER_BY_ID);
 	}
 
 	@Override

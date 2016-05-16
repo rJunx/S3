@@ -50,13 +50,6 @@ public class S3CustomerController {
 		server.doTask(uuid, S3Const.CLASS_TASK_NAME, S3Const.TABLE_CUSTOMER, S3TableOPType.INSERT, values, null);
 	}
 	
-	public void onGetCustomerInfoByID(String ID) throws RemoteException, SQLException {
-		Map<String, Object> m = new HashMap<String, Object>();
-		m.put(S3Const.TABLE_USER_ID, ID);
-		
-		server.doTask(uuid, S3Const.CLASS_TASK_NAME, S3Const.TABLE_CUSTOMER, S3TableOPType.SELECT, null, m);
-	}
-	
 	public void onGetCustomerInfoByID(String ID, int taskType) throws RemoteException, SQLException {
 		Map<String, Object> m = new HashMap<String, Object>();
 		m.put(S3Const.TABLE_USER_ID, ID);
