@@ -31,6 +31,20 @@ public class S3ProductController {
 		server.doTask(uuid, S3Const.CLASS_TASK_NAME, S3Const.TABLE_PRODUCT, S3TableOPType.UPDATE, values, conditions);
 	}
 	
+	public void update(String productID, int taskType, String key, Object value) throws RemoteException, SQLException {
+		Map<String, Object> conditions = new HashMap<String, Object>();
+		conditions.put(S3Const.TABLE_PRODUCT_ID, productID);
+		
+		Map<String, Object> values = new HashMap<String, Object>();
+		values.put(key, value);
+		
+		server.doTask(uuid, taskType, S3Const.CLASS_TASK_NAME, S3Const.TABLE_PRODUCT, S3TableOPType.UPDATE, values, conditions);
+	}
+	
+	public void updatePrice(String productID, double value, int taskType) throws RemoteException, SQLException {
+		update(productID, taskType, S3Const.TABLE_PRODUCT_PRICE, value);
+	}
+	
 	public void updatePrice(String productID, double value) throws RemoteException, SQLException {
 		update(productID, S3Const.TABLE_PRODUCT_PRICE, value);
 	}

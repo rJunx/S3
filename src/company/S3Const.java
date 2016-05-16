@@ -52,4 +52,5 @@ public abstract class S3Const {
 	
 	public static final int TASK_SHOW_TRANSACTION_BY_ID = 10;
 	
+	public static final int TASK_SYNC_PRODUCT = 11;
 }

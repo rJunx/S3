@@ -13,8 +13,17 @@ import java.util.*;
 import company.S3Const;
 
 
-public class S3CustomerMenu {
-    public static String productCode;
+public class S3CustomerMenu extends S3Menu {
+    public S3CustomerMenu(S3Application application) {
+		super(application);
+		// TODO Auto-generated constructor stub
+	}
+    
+    public void run() throws RemoteException, SQLException {
+    	
+    }
+
+	public static String productCode;
     public static String productName;
     public char searchMenuCh;
     public char mainMenuCh;
@@ -309,4 +318,10 @@ public class S3CustomerMenu {
     public HashMap getPurchaseList(){
         return purchaseList;
     }
+
+	@Override
+	void onReceiveData(int taskType, List<?> data) {
+		// TODO Auto-generated method stub
+		
+	}
 }
