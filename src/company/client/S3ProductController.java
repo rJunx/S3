@@ -39,6 +39,7 @@ public class S3ProductController {
 		values.put(key, value);
 		
 		server.doTask(uuid, taskType, S3Const.CLASS_TASK_NAME, S3Const.TABLE_PRODUCT, S3TableOPType.UPDATE, values, conditions);
+		this.postGetProductInfoByID(productID, S3Const.TASK_SYNC_PRODUCT);
 	}
 	
 	public void updatePrice(String productID, double value, int taskType) throws RemoteException, SQLException {

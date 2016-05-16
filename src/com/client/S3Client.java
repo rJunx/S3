@@ -54,6 +54,10 @@ public class S3Client extends UnicastRemoteObject implements S3ClientIF, Runnabl
 		app.onRevData(taskType, data);
 	}
 	
+	public void receiveBordercastData( int taskType, Object data ) throws RemoteException {
+		app.onReceiveBordercastData(taskType, data);
+	}
+	
 	public void sendTask(String className, Object... args) {
 		try {
 			server.getClass().getDeclaredMethod("doTask", String.class, String.class, Object[].class).invoke(server, getUUID(), className, args);
@@ -78,41 +82,10 @@ public class S3Client extends UnicastRemoteObject implements S3ClientIF, Runnabl
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub
-		
 		try {
 			app.run();
 		} catch ( Exception e ) {
 			e.printStackTrace();
 		}
-
-//		String msg;
-//		
-//		while ( true ) {
-//			msg = scanner.nextLine();
-//			/*
-//			try {
-//				server.broadcastMessage(msg);
-//			} catch ( RemoteException e ) {
-//				e.printStackTrace();
-//			} finally {
-//				//scanner.close();
-//			}*/
-//			
-//			if ( msg.equals("Test") ) {
-//				try {
-//					server.doTask(getUUID(), "S3TestTask", 123, 435);
-//				} catch ( RemoteException e ) {
-//					e.printStackTrace();
-//				}
-//			} else if( msg.equals("DBTest") ) {
-//				try {
-//					server.doTask(getUUID(), "S3DBTestTask" );
-//				} catch ( RemoteException e ) {
-//					e.printStackTrace();
-//				}
-//			} 
-//		}
-//	}
-
 	}
 }

@@ -5,6 +5,9 @@ import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import com.client.S3ClientIF;
 import com.common.S3TaskIF;
@@ -45,12 +48,17 @@ public class S3Server extends UnicastRemoteObject implements S3ServerIF {
 	}
 
 	@Override
-	public void broadcastMessage(String msg) throws RemoteException {
+	public void broadcastMessage(Map args) throws RemoteException {
 		// TODO Auto-generated method stub
-		/*
-		for ( int i = 0; i < clients.size(); i++ ) {
-			clients.get( i ).revMsg( msg );
-		}*/
+		Iterator<String> itr = clients.keySet().iterator();
+		int taskType = (int)args.get("taskType");
+		Object data = args.get("data");
+		
+		while(itr.hasNext()) {
+			String k = itr.next();
+			S3ClientIF client = clients.get(k);
+			client.receiveBordercastData(taskType, data);
+		}
 	}
 	
 	public S3DBMan getDBMan() {

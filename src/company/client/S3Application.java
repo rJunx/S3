@@ -14,8 +14,6 @@ import company.S3Const;
 import company.S3UserType;
 
 public class S3Application implements S3CustomerMenuIF{
-	private S3Menu menu;
-	
 	private S3ProductController productController;
 	private S3CustomerController customerController;
 	private S3StaffController staffController;
@@ -30,6 +28,14 @@ public class S3Application implements S3CustomerMenuIF{
 	private ArrayList<Supply> supplyList = new ArrayList<Supply>();
 	private ArrayList<OrderItem> orderItemList = new ArrayList<OrderItem>();
 	
+	private static final int TOTAL_SYNC_TASK = 1;
+	private int finished_sync_task = 0;
+	
+	private S3Menu menu;
+	private S3ServerIF server;
+	
+	private Scanner scan = new Scanner(System.in);
+	
 	// constructor
 	public S3Application(String uuid, S3ServerIF server) {
 		productController = new S3ProductController( uuid, server );
@@ -37,6 +43,7 @@ public class S3Application implements S3CustomerMenuIF{
 		staffController = new S3StaffController( uuid, server );
 		orderController = new S3OrderItemController(uuid, server);
 		transactionController = new S3TransactionController(uuid, server);
+		this.server = server;
 	}
 	
 	// accessors
@@ -47,35 +54,54 @@ public class S3Application implements S3CustomerMenuIF{
 	public ArrayList<Supplier> getSupplierList(){return supplierList;}
 	public ArrayList<Supply> getSupplyList(){return supplyList;}
 	public ArrayList<OrderItem> getOrderItemList(){return orderItemList;}
-	
+
 	public S3ProductController getProductController() {return productController;}
 	
-//	----------------------------------Joon's demo -------------------------------------
-
-	private Scanner scan = new Scanner(System.in);
-	
-	public static void changeBulkSalePlan(int planNo, int planItem, double value){
-		S3OrderItemController.bulkSalePlan[planNo-1][planItem-1] = value;
-	}
-	
+	//Basic function for unknown user
 	public char menu() {
 		System.out.println("\n\n\n\t\tOrder Processing System\n");
-		System.out.println("\tShow All Product List				   1");
-		System.out.println("\tSearch Product                       2");
-		System.out.println("\tLogin                                3");
-		System.out.println("\tExit                                 e");
+		System.out.println("\tShow All Product List					1");
+		System.out.println("\tSearch Product						2");
+		System.out.println("\tLogin									3");
+		System.out.println("\tUpdate Product Price(For test)		4");
+		System.out.println("\tExit									e");
 		System.out.println("\n\t**************************************");
 		System.out.print("\tYour choice : ");
 		char ch = scan.nextLine().charAt(0);
 		return ch;
 	}
 	
+	public void run() throws RemoteException, SQLException {
+		syncAllData();
+		
+		char ch = ' ';
+		do {
+			if (menu != null) {
+				menu.run();
+			} else {
+				ch = menu();
+				switch (ch) {
+				case '1':
+					postShowAllProducts();
+					break;
+				case '2':
+					break;
+				case '3':
+					postLogin();
+					break;
+				case '4':
+					postTestUpdateProductPrice();
+					break;
+				}
+			}
+		} while (ch != 'e');
+	}
+	
 	public void waitForRes() {
 		System.out.println("\nPress enter to continue");
 		scan.nextLine();
 	}
-// -------------------------------------------------------------------------------------------
-
+	
 	private S3UserType checkUserType(String userID) {
 		if (userID.charAt(0) == 'c') {
 			return S3UserType.CUSTOMER;
@@ -85,7 +111,7 @@ public class S3Application implements S3CustomerMenuIF{
 			return S3UserType.UNKNOWN;
 		}
 	}
-
+	
 	private void postLogin() throws RemoteException, SQLException {
 	    System.out.print("Enter userID : ");  
 	    String userID = scan.nextLine();
@@ -133,100 +159,122 @@ public class S3Application implements S3CustomerMenuIF{
 		menu = null;
 	}
 	
-	private Boolean isFinishSync = false;
-	
-	private void syncAllData() throws RemoteException, SQLException {
-		productController.postGetAllProduct(S3Const.TASK_SYNC_PRODUCT);
-	}
-
-	public void run() throws RemoteException, SQLException {
-		if (!isFinishSync) {
-			syncAllData();
-			return;
-		}
-
-		char ch = ' ';
-		do {
-			if (menu != null) {
-				menu.run();
+	public Product getProductByBarcode(String barCode) {
+		Product p = null;
+		for (int i = 0; i < productList.size(); i++) {
+			p = productList.get(i);
+			if(p.barcode.compareTo(barCode) == 0) {
+				break; 
 			} else {
-				ch = menu();
-				switch (ch) {
-				case '1':
-					postShowAllProducts();
-					break;
-				case '2':
-					postShowAllProducts();
-					break;
-				case '3':
-					postLogin();
-					break;
-				}
+				p = null;
 			}
-
-		} while (ch != 'e');
+		}
+		return p;
 	}
 	
-// ***************************************** onRevDate ***************************************************************************
-	public void onRevData(int taskType, Object data) {
-		if (menu != null) {
-			menu.onReceiveData(taskType, (List<?>) data);
-		} else {
+	//-------------------------------Sync data---------------------------------------------
+	//receive data from server(sender and receiver are the same client)
+	public void onRevData(int taskType, Object data) throws RemoteException {
+		if (finished_sync_task != TOTAL_SYNC_TASK) {
+			//Sync data before start the application
 			switch (taskType) {
 			case S3Const.TASK_SYNC_PRODUCT:
 				onSyncProduct((List<?>) data);
-				break;
-			case S3Const.TASK_SHOW_ALL_PRODUCTS:
-				onShowAllProducts((List<?>) data);
-				break;
-			case S3Const.TASK_SHOW_STAFF_BY_ID:
-				onShowStaffByID((List<?>) data);
-				break;
-			case S3Const.TASK_SHOW_PROD_BY_ID:
-				onShowProductByID((List<?>) data);
-				break;
-			case S3Const.TASK_SHOW_CUSTOMER_BY_ID:
-				onShowCustomerByID((List<?>) data);
-				break;
-			case S3Const.TASK_SHOW_TRANSACTION_BY_ID:
-				postShowTransactionByDate((List<?>) data);
+				finished_sync_task++;
 				break;
 			default:
 				break;
-			}	
+			}
+		} else {
+			if (data != null) {
+				HashMap<String, Object> args = new HashMap<>();
+				args.put("taskType", taskType);
+				args.put("data", data);
+				switch(taskType) {
+				case S3Const.TASK_SYNC_PRODUCT:
+					server.broadcastMessage(args);
+					break;
+				}
+			}
+			
+			if (menu != null) {
+				menu.onReceiveData(taskType, (List<?>) data);
+			} else {
+				switch (taskType) {
+				case S3Const.TASK_SHOW_ALL_PRODUCTS:
+					onShowAllProducts((List<?>) data);
+					break;
+				case S3Const.TASK_SHOW_STAFF_BY_ID:
+					onShowStaffByID((List<?>) data);
+					break;
+				case S3Const.TASK_SHOW_PROD_BY_ID:
+					onShowProductByID((List<?>) data);
+					break;
+				case S3Const.TASK_SHOW_CUSTOMER_BY_ID:
+					onShowCustomerByID((List<?>) data);
+					break;
+				case S3Const.TASK_SHOW_TRANSACTION_BY_ID:
+					postShowTransactionByDate((List<?>) data);
+					break;
+				default:
+					break;
+				}	
+			}
 		}
 	}
-		
-// ***************************************** END OF "onRevData" ***************************************************************************	
+	
+	//receive border cast data(server sends the data to all connected clients, mainly for sync data)
+	public void onReceiveBordercastData( int taskType, Object data ) throws RemoteException {
+		switch(taskType) {
+		case S3Const.TASK_SYNC_PRODUCT:
+			onSyncProduct((List<?>) data);
+			break;
+		}
+	}
+	
 	private void onSyncProduct(List<?> data) {
 		if (productList.size() == 0) {
 			for(int i = 0; i < data.size(); i++){
 				Map row = (Map)data.get(i);
 				Product prod = new Product(row);
 				productList.add(prod);
-			}			
+			}
 		} else {
 			for(int i = 0; i < data.size(); i++){
 				Map row = (Map)data.get(i);
 				String barcode = (String)row.get(S3Const.TABLE_PRODUCT_ID);
+				boolean found = false;
 				for (int j = 0; j < productList.size(); j++) {
-					Product p = productList.get(i);
+					Product p = productList.get(j);
 					if (p.barcode.compareTo(barcode) == 0) {
 						p.update(row);
+						found = true;
+						break;
 					}
+				}
+				
+				if(!found) {
+					Product prod = new Product(row);
+					productList.add(prod);
 				}
 			}
 		}
 	}
+
+	private void syncAllData() throws RemoteException, SQLException {
+		productController.postGetAllProduct(S3Const.TASK_SYNC_PRODUCT);
+	}
 	
-	public void onSyncData(int taskType, Object data) {
-		switch(taskType) {
-		case S3Const.TASK_UPDATE_PRODUCT_PRICE:
-		case S3Const.TASK_UPDATE_PRODUCT_REPLENISH_LV:
-		case S3Const.TASK_UPDATE_PRODUCT_STOCK_LV:
-			onSyncProduct((List<?>) data);
-			break;
-		}
+	
+	//for test
+	public void postTestUpdateProductPrice() throws RemoteException, SQLException {
+		productController.updatePrice("0000000000", 100.0, S3Const.TASK_UPDATE_PRODUCT_PRICE);
+	}
+	
+	//------------------------------need to arrangement--------------------------------------------------
+	
+	public static void changeBulkSalePlan(int planNo, int planItem, double value){
+		S3OrderItemController.bulkSalePlan[planNo-1][planItem-1] = value;
 	}
 	
 	// Get all the product information
@@ -429,19 +477,5 @@ public class S3Application implements S3CustomerMenuIF{
 	public void postUpdateProductStockLevel(ArrayList<Product> products) throws RemoteException, SQLException {
 		// TODO Auto-generated method stub
 		
-	}
-	
-	
-	public Product getProductByBarcode(String barCode) {
-		Product p = null;
-		for (int i = 0; i < productList.size(); i++) {
-			p = productList.get(i);
-			if(p.barcode.compareTo(barCode) == 0) {
-				break; 
-			} else {
-				p = null;
-			}
-		}
-		return p;
 	}
 }

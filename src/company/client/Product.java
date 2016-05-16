@@ -1,5 +1,6 @@
 package company.client;
 
+import java.math.BigDecimal;
 import java.util.Map;
 import company.S3Const;
 
@@ -8,7 +9,7 @@ public class Product {
 	public String name;
 	public double price;
 	public int promotion;
-	public double discount;
+	public int discount;
 	public int stockLv;
 	public int replenishLv;
 	public String supplier;
@@ -18,7 +19,7 @@ public class Product {
 		this.name = name;
 		this.price = price;
 		this.promotion = promotion;
-		this.discount = discount;
+		this.discount = (int)discount;
 		this.stockLv = stockLv;
 		this.replenishLv = replenishLv;
 		this.supplier = supplier;
@@ -31,11 +32,11 @@ public class Product {
 	public void update(Map row) {
 		barcode = (String)row.get(S3Const.TABLE_PRODUCT_ID);
 		name = (String)row.get(S3Const.TABLE_PRODUCT_NAME);
-		price = (double)row.get(S3Const.TABLE_PRODUCT_PRICE);
-		promotion = (int)row.get(S3Const.TABLE_PRODUCT_PROMOTION);
-		discount = (double)row.get(S3Const.TABLE_PRODUCT_DISCOUNT);
-		stockLv = (int)row.get(S3Const.TABLE_PRODUCT_STOCK_LV);
-		replenishLv = (int)row.get(S3Const.TABLE_PRODUCT_REPLENISH_LV);
-		supplier = (String)row.get(S3Const.TABLE_PRODUCT_SUPPLIER);
+		price = ((BigDecimal) row.get(S3Const.TABLE_PRODUCT_PRICE)).doubleValue();
+		promotion = ((BigDecimal) row.get(S3Const.TABLE_PRODUCT_PROMOTION)).intValue();
+		discount = ((BigDecimal) row.get(S3Const.TABLE_PRODUCT_DISCOUNT)).intValue();
+		stockLv = ((BigDecimal) row.get(S3Const.TABLE_PRODUCT_STOCK_LV)).intValue();
+		replenishLv = ((BigDecimal) row.get(S3Const.TABLE_PRODUCT_REPLENISH_LV)).intValue();
+		//supplier = (String) row.get(S3Const.TABLE_PRODUCT_SUPPLIER);
 	}
 }
