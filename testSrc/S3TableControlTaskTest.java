@@ -71,7 +71,7 @@ public class S3TableControlTaskTest {
 	}
 
 	@Test
-	public void test() throws SQLException {
+	public void testSelect() throws SQLException {
 		String productID = "0000000003";
 		Map<String, Object> m = new HashMap<String, Object>();
 		m.put(S3Const.TABLE_PRODUCT_ID, productID);
