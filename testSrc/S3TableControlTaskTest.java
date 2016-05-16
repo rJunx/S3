@@ -14,6 +14,7 @@ import org.junit.Test;
 import com.server.S3Server;
 
 import company.S3Const;
+import company.S3StaffType;
 import company.S3TableOPType;
 import company.server.S3TableControlTask;
 
@@ -53,7 +54,15 @@ public class S3TableControlTaskTest {
 		values.put(S3Const.TABLE_PRODUCT_STOCK_LV, newStockLv);
 		
 		S3TableControlTask updateTask = new S3TableControlTask(S3Const.TABLE_PRODUCT, S3TableOPType.INSERT, values, conditions);
+		
+		List<Object> staffValue = new ArrayList<Object>();
+		staffValue.add("s0000000000");
+		staffValue.add(S3StaffType.MANAGER.ordinal());
+		
+		S3TableControlTask staffTask = new S3TableControlTask(S3Const.TABLE_STAFF, S3TableOPType.INSERT, staffValue, null);
+		
 		try {
+			staffTask.run(server);
 			updateTask.run(server);
 			
 			S3TableControlTask selectTask = new S3TableControlTask(S3Const.TABLE_PRODUCT, S3TableOPType.SELECT, null, conditions);

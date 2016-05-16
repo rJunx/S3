@@ -23,7 +23,7 @@ public abstract class S3Menu {
 			} catch (Exception e) {
 				value = -1;
 			}
-		} while (value != -1);
+		} while (value == -1);
 		return value;
 	}
 	

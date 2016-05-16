@@ -1,5 +1,6 @@
 package company.client;
 
+import java.math.BigDecimal;
 import java.rmi.RemoteException;
 import java.sql.SQLException;
 import java.sql.Date;
@@ -11,6 +12,7 @@ import java.util.Scanner;
 import com.server.S3ServerIF;
 
 import company.S3Const;
+import company.S3StaffType;
 import company.S3UserType;
 
 public class S3Application implements S3CustomerMenuIF{
@@ -126,11 +128,11 @@ public class S3Application implements S3CustomerMenuIF{
 	    }
 	}
 	
-	private void onLogin(List data) {
+	private void onLogin(List<?> data) {
 		if (data == null || data.size() == 0) {
 			System.out.println("User does not exit"); 
 		} else {		
-		    String userID = (String)((Map) data.get(0)).get(S3Const.TABLE_USER_ID);
+		    String userID = (String)((Map<?, ?>) data.get(0)).get(S3Const.TABLE_USER_ID);
 			S3UserType userType = checkUserType(userID);
 			
 			System.out.println("Welcome " + userID);
@@ -138,18 +140,14 @@ public class S3Application implements S3CustomerMenuIF{
 		    if (userType == S3UserType.CUSTOMER) {
 		    	menu = new S3CustomerMenu(this);
 		    } else if (userType == S3UserType.STAFF) {
-				int type = (int)((Map) data.get(0)).get(S3Const.TABLE_STAFF_TYPE);
+				int type = ((BigDecimal)((Map<?, ?>) data.get(0)).get(S3Const.TABLE_STAFF_TYPE)).intValue();
 				
-				switch(type) {
-				case 0:
+				if (S3StaffType.MANAGER.ordinal() == type) {
 					menu = new S3ManagerMenu(this);
-					break;
-				case 1:
+				} else if (S3StaffType.SALES_STAFF.ordinal() == type) {
 					menu = new S3SaleStaffMenu(this);
-					break;
-				case 2:
+				} else if (S3StaffType.WAREHOUSE_STAFF.ordinal() == type) {
 					menu = new S3WarehouseStaffMenu(this);
-					break;
 				}
 		    }
 		}
@@ -205,13 +203,13 @@ public class S3Application implements S3CustomerMenuIF{
 					onShowAllProducts((List<?>) data);
 					break;
 				case S3Const.TASK_SHOW_STAFF_BY_ID:
-					onShowStaffByID((List<?>) data);
+					onLogin((List<?>) data);
 					break;
 				case S3Const.TASK_SHOW_PROD_BY_ID:
 					onShowProductByID((List<?>) data);
 					break;
 				case S3Const.TASK_SHOW_CUSTOMER_BY_ID:
-					onShowCustomerByID((List<?>) data);
+					onLogin((List<?>) data);
 					break;
 				case S3Const.TASK_SHOW_TRANSACTION_BY_ID:
 					postShowTransactionByDate((List<?>) data);
@@ -235,13 +233,13 @@ public class S3Application implements S3CustomerMenuIF{
 	private void onSyncProduct(List<?> data) {
 		if (productList.size() == 0) {
 			for(int i = 0; i < data.size(); i++){
-				Map row = (Map)data.get(i);
+				Map<?, ?> row = (Map<?, ?>)data.get(i);
 				Product prod = new Product(row);
 				productList.add(prod);
 			}
 		} else {
 			for(int i = 0; i < data.size(); i++){
-				Map row = (Map)data.get(i);
+				Map<?, ?> row = (Map<?, ?>)data.get(i);
 				String barcode = (String)row.get(S3Const.TABLE_PRODUCT_ID);
 				boolean found = false;
 				for (int j = 0; j < productList.size(); j++) {

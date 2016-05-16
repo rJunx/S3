@@ -138,4 +138,10 @@ public class S3ProductControllerTest implements S3ClientIF {
 		// TODO Auto-generated method stub
 
 	}
+
+	@Override
+	public void receiveBordercastData(int taskType, Object data) throws RemoteException {
+		// TODO Auto-generated method stub
+		
+	}
 }

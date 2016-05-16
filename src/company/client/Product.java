@@ -25,11 +25,11 @@ public class Product {
 		this.supplier = supplier;
 	}
 	
-	public Product(Map row) {
+	public Product(Map<?, ?> row) {
 		update(row);
 	}
 	
-	public void update(Map row) {
+	public void update(Map<?, ?> row) {
 		barcode = (String)row.get(S3Const.TABLE_PRODUCT_ID);
 		name = (String)row.get(S3Const.TABLE_PRODUCT_NAME);
 		price = ((BigDecimal) row.get(S3Const.TABLE_PRODUCT_PRICE)).doubleValue();

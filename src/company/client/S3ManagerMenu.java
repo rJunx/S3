@@ -29,9 +29,9 @@ public class S3ManagerMenu extends S3Menu {
 			System.out.println("          5.Sales Report");
 			System.out.println("          6.Supplier Report ");//do not have enough info to work out the out of scope supplies
 			System.out.println("          7.Top 10 best sellers ");
-			System.out.println("          8.Exit ");
+			System.out.println("          8.Logout ");
 			System.out.print("Please enter your option: ");
-			optionNumber = scan.nextInt(3);
+			optionNumber = scan.nextInt();
 
 			switch (optionNumber){
 			case 1:
@@ -40,6 +40,9 @@ public class S3ManagerMenu extends S3Menu {
 			case 2:
 				break;
 			case 3:
+				break;
+			case 8:
+				app.logout();
 				break;
 			default:
 				System.out.println("Please enter a valid option.");
@@ -67,16 +70,17 @@ public class S3ManagerMenu extends S3Menu {
 		do {
 			try {
 				System.out.println("Please enter product Barcode:");
-				String barcode = scan.nextLine();
+				String barcode = scan.next();
 				
 				p = app.getProductByBarcode(barcode);
 				if (p == null) {
 					throw new Exception();
 				}
 			} catch(Exception e) {
+				p = null;
 				System.out.println("Invalid Barcode.");
 			}
-		} while (p != null);
+		} while (p == null);
 
 		return p;
 	}
