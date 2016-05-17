@@ -31,7 +31,7 @@ public class S3CustomerController {
 		values.put(key, value);
 		
 		server.doTask(uuid, S3Const.CLASS_TASK_NAME, S3Const.TABLE_CUSTOMER, S3TableOPType.UPDATE, values, conditions);
-		this.onGetCustomerInfoByID(ID, S3Const.TASK_SYNC_CUSTOMER);
+		//this.onGetCustomerInfoByID(ID, S3Const.TASK_SYNC_CUSTOMER);
 	}
 	
 	public void updateBalance(String ID, double value) throws RemoteException, SQLException {

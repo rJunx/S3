@@ -59,6 +59,7 @@ public class S3Application implements S3CustomerMenuIF{
 
 	public S3ProductController getProductController() {return productController;}
 	public S3CustomerController getCUstomerController() {return customerController;}
+	public S3StaffController getStaffController() {return staffController;}
 	public S3User getCurrentUser() { return user; }
 	
 	//Basic function for unknown user
@@ -66,8 +67,9 @@ public class S3Application implements S3CustomerMenuIF{
 		System.out.println("\n\n\n\t\tOrder Processing System\n");
 		System.out.println("\tShow All Product List					1");
 		System.out.println("\tSearch Product						2");
-		System.out.println("\tLogin									3");
-		System.out.println("\tUpdate Product Price(For test)		4");
+		System.out.println("\tStaff Login							3");
+		System.out.println("\tAdd Order								5");
+		System.out.println("\tPurchase								6");
 		System.out.println("\tExit									e");
 		System.out.println("\n\t**************************************");
 		System.out.print("\tYour choice : ");
@@ -86,15 +88,15 @@ public class S3Application implements S3CustomerMenuIF{
 				ch = menu();
 				switch (ch) {
 				case '1':
-					postShowAllProducts();
+					onShowAllProducts();
 					break;
 				case '2':
 					break;
 				case '3':
-					sendLogin();
+					sendStaffLogin();
 					break;
-				case '4':
-					postTestUpdateProductPrice();
+				case '6':
+					onPurchase();
 					break;
 				}
 			}
@@ -106,43 +108,64 @@ public class S3Application implements S3CustomerMenuIF{
 		scan.nextLine();
 	}
 	
-	private void sendLogin() throws RemoteException, SQLException {
-	    System.out.print("Enter userID : ");  
+	private void onShowAllProducts() {
+		
+	}
+	
+	private void sendStaffLogin() throws RemoteException, SQLException {
+	    System.out.print("Enter Staff ID : ");  
 	    String userID = scan.nextLine();
-	    S3UserType userType = S3User.checkUserType(userID);
-	    
-	    if (userType == S3UserType.CUSTOMER) {
-	    	customerController.onGetCustomerInfoByID(userID, S3Const.TASK_SHOW_CUSTOMER_BY_ID);
-	    } else if (userType == S3UserType.STAFF) {
+	    S3UserType userType = S3User.checkUserType(userID); 
+	    	
+	    if (userType == S3UserType.STAFF) {
 	    	staffController.onGetStaffInfoByID(userID, S3Const.TASK_SHOW_STAFF_BY_ID);
 	    } else {
-	    	System.out.println("Invalid userID"); 
+	    	System.out.println("Invalid Staff ID"); 
 	    }
 	}
 	
-	private void receiveLogin(List<?> data) {
+	private void receiveStaffLogin(List<?> data) {
 		if (data == null || data.size() == 0) {
-			System.out.println("User does not exit"); 
+			System.out.println("Staff does not exit"); 
 		} else {
-			Map<?, ?> userInfo = (Map<?, ?>) data.get(0);
-		    String userID = (String)userInfo.get(S3Const.TABLE_USER_ID);
-			S3UserType userType = S3User.checkUserType(userID);
+		    S3Staff sf = new S3Staff((Map<?, ?>) data.get(0));
+		    user = sf;
+		    S3StaffType st = sf.getType();
+			if (st == S3StaffType.MANAGER) {
+				menu = new S3ManagerMenu(this);
+			} else if (S3StaffType.SALES_STAFF == st) {
+				menu = new S3SaleStaffMenu(this);
+			} else if (S3StaffType.WAREHOUSE_STAFF == st) {
+				menu = new S3WarehouseStaffMenu(this);
+			}
+		}
+	}
+	
+	private void onPurchase() throws RemoteException, SQLException {
+	    System.out.print("Enter Customer ID : ");  
+	    String userID = scan.nextLine();
+	    S3UserType userType = S3User.checkUserType(userID); 
+	    	
+	    if (userType == S3UserType.CUSTOMER) {
+	    	customerController.onGetCustomerInfoByID(userID, S3Const.TASK_SHOW_CUSTOMER_BY_ID);
+	    } else {
+	    	System.out.println("Invalid Customer ID"); 
+	    }
+	}
+	
+	private void onReceiveCustomer(List<?> data) {
+		if (data == null || data.size() == 0) {
+			System.out.println("Customer does not exit"); 
+		} else {
+			S3Customer c = new S3Customer((Map<?, ?>) data.get(0));
+			System.out.println("Customer: " + c.getID() + " Balance: " + c.getBalance() + " Credit Point: " + c.getPoint());
+			//Show final result
 			
-		    if (userType == S3UserType.CUSTOMER) {
-		    	user = new S3Customer(userInfo);
-		    	menu = new S3CustomerMenu(this);
-		    } else if (userType == S3UserType.STAFF) {
-		    	S3Staff sf = new S3Staff(userInfo);
-		    	user = sf;
-		    	S3StaffType st = sf.getType();
-				if (st == S3StaffType.MANAGER) {
-					menu = new S3ManagerMenu(this);
-				} else if (S3StaffType.SALES_STAFF == st) {
-					menu = new S3SaleStaffMenu(this);
-				} else if (S3StaffType.WAREHOUSE_STAFF == st) {
-					menu = new S3WarehouseStaffMenu(this);
-				}
-		    }
+			System.out.println("Continue to buy(y/n)");
+			char ch = scan.nextLine().charAt(0);
+			if (ch == 'y') {
+				
+			}
 		}
 	}
 	
@@ -197,10 +220,10 @@ public class S3Application implements S3CustomerMenuIF{
 					onShowAllProducts((List<?>) data);
 					break;
 				case S3Const.TASK_SHOW_STAFF_BY_ID:
-					receiveLogin((List<?>) data);
+					receiveStaffLogin((List<?>) data);
 					break;
 				case S3Const.TASK_SHOW_CUSTOMER_BY_ID:
-					receiveLogin((List<?>) data);
+					onReceiveCustomer((List<?>) data);
 					break;
 				default:
 					break;
@@ -218,19 +241,19 @@ public class S3Application implements S3CustomerMenuIF{
 		case S3Const.TASK_SYNC_PRODUCT:
 			onSyncProduct((List<?>) data);
 			break;
-		case S3Const.TASK_SYNC_CUSTOMER:
-			onSyncCustomer((List<?>) data);
-			break;
+		//case S3Const.TASK_SYNC_CUSTOMER:
+		//	onSyncCustomer((List<?>) data);
+		//	break;
 		}
 	}
 	
-	private void onSyncCustomer(List<?> data) {
-		Map<?, ?> userInfo = (Map<?, ?>) data.get(0);
-	    String userID = (String)userInfo.get(S3Const.TABLE_USER_ID);
-	    if (user != null && user.getID().compareTo(userID) == 0) {
-	    	((S3Customer)user).update(userInfo);
-	    }
-	}
+	//private void onSyncCustomer(List<?> data) {
+	//	Map<?, ?> userInfo = (Map<?, ?>) data.get(0);
+	//    String userID = (String)userInfo.get(S3Const.TABLE_USER_ID);
+	//    if (user != null && user.getID().compareTo(userID) == 0) {
+	//    	((S3Customer)user).update(userInfo);
+	//    }
+	//}
 	
 	private void onSyncProduct(List<?> data) {
 		if (productList.size() == 0) {
@@ -263,12 +286,6 @@ public class S3Application implements S3CustomerMenuIF{
 
 	private void syncAllData() throws RemoteException, SQLException {
 		productController.postGetAllProduct(S3Const.TASK_SYNC_PRODUCT);
-	}
-	
-	
-	//for test
-	public void postTestUpdateProductPrice() throws RemoteException, SQLException {
-		productController.updatePrice("0000000000", 100.0, S3Const.TASK_UPDATE_PRODUCT_PRICE);
 	}
 	
 	//------------------------------need to arrangement--------------------------------------------------

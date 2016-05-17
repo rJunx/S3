@@ -11,6 +11,7 @@ import java.sql.SQLException;
 import java.util.*;
 
 import company.S3Const;
+import company.S3UserType;
 
 
 public class S3CustomerMenu extends S3Menu {
@@ -20,9 +21,65 @@ public class S3CustomerMenu extends S3Menu {
 	}
     
     public void run() throws RemoteException, SQLException {
-    	
+    	int optionNumber;//option number from menu, selected by user
+		
+		do{
+			System.out.println("\n\n\n\t\tOrder Processing System\n");
+			System.out.println("\tShow All Product List					1");
+			System.out.println("\tSearch Product						2");
+			System.out.println("\tStaff Login							3");
+			System.out.println("\tExit									e");
+			System.out.println("\n\t**************************************");
+			System.out.print("\tYour choice : ");
+			optionNumber = scan.nextInt();
+
+			switch (optionNumber){
+			case 1:
+				break;
+			case 2:
+				sendStaffLogin();
+				break;
+			case 3:
+				break;
+			case 8:
+				app.logout();
+				break;
+			default:
+				System.out.println("Please enter a valid option.");
+			} 
+		}while (optionNumber != 'e');
     }
 
+	public void onReceiveData(int taskType, List<?> data) {
+		switch(taskType) {
+		case S3Const.TASK_SHOW_CUSTOMER_BY_ID:
+			break;
+		case S3Const.TASK_SHOW_STAFF_BY_ID:
+			
+			break;
+			default:
+				break;
+		}
+	}
+	
+	public void sendStaffLogin() throws RemoteException, SQLException{
+	    System.out.print("Enter staffID : ");  
+	    String userID = scan.nextLine();
+	    S3UserType userType = S3User.checkUserType(userID);
+	    
+	    if (userType == S3UserType.STAFF) {
+	    	app.getStaffController().onGetStaffInfoByID(userID, S3Const.TASK_SHOW_STAFF_BY_ID);
+	    } else {
+	    	System.out.println("Invalid userID"); 
+	    }
+	}
+	
+	
+	
+    
+    
+    
+    //----------------------------------------------------------------------------------------------
 	public static String productCode;
     public static String productName;
     public char searchMenuCh;
@@ -318,10 +375,4 @@ public class S3CustomerMenu extends S3Menu {
     public HashMap getPurchaseList(){
         return purchaseList;
     }
-
-	@Override
-	void onReceiveData(int taskType, List<?> data) {
-		// TODO Auto-generated method stub
-		
-	}
 }
