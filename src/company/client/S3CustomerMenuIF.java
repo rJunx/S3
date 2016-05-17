@@ -9,7 +9,7 @@ public interface S3CustomerMenuIF {
 	// --------------------- For Tony to use ------------------------------------------------
 	
 	// return total cost of the given products for the given customer
-	public double calcTotalCost(ArrayList<Product> prodInCart, Customer customer);
+	public double calcTotalCost(ArrayList<S3Product> prodInCart, S3Customer customer);
 	
 	// return Arraylist<Product> with all the products' info
 	public void postShowAllProducts() throws RemoteException, SQLException;
@@ -25,9 +25,9 @@ public interface S3CustomerMenuIF {
 	
 	
 	// update customer's information
-	public void postUpdateCustomerByID(Customer customer) throws RemoteException, SQLException;
+	public void postUpdateCustomerByID(S3Customer customer) throws RemoteException, SQLException;
 	
 	// update product's stockLevel
-	public void postUpdateProductStockLevel(ArrayList<Product> products) throws RemoteException, SQLException;
+	public void postUpdateProductStockLevel(ArrayList<S3Product> products) throws RemoteException, SQLException;
 	
 }

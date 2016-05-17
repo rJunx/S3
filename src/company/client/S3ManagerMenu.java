@@ -20,16 +20,17 @@ public class S3ManagerMenu extends S3Menu {
 		int optionNumber;//option number from menu, selected by user
 		
 		do{
-			System.out.println("Which of the following manager task would you like to do?");
 			System.out.println();
-			System.out.println("          1.Update Price");
-			System.out.println("          2.Update Stock Level");
-			System.out.println("          3.Update Promotion discount to products ");
-			System.out.println("          4.Update Supplier information");
-			System.out.println("          5.Sales Report");
-			System.out.println("          6.Supplier Report ");//do not have enough info to work out the out of scope supplies
-			System.out.println("          7.Top 10 best sellers ");
-			System.out.println("          8.Logout ");
+			System.out.println("								User:" + app.getCurrentUser().getID());
+			System.out.println("Which of the following manager task would you like to do?");
+			System.out.println("1.Update Price");
+			System.out.println("2.Update Stock Level");
+			System.out.println("3.Update Promotion discount to products ");
+			System.out.println("4.Update Supplier information");
+			System.out.println("5.Get Sales Report");
+			System.out.println("6.Get Supplier Report ");//do not have enough info to work out the out of scope supplies
+			System.out.println("7.Get Top 10 best sellers ");
+			System.out.println("8.Logout ");
 			System.out.print("Please enter your option: ");
 			optionNumber = scan.nextInt();
 
@@ -51,7 +52,7 @@ public class S3ManagerMenu extends S3Menu {
 	}
 	
 	private void updatePrice() throws RemoteException, SQLException {
-		Product p = fecthProductByInput();
+		S3Product p = fecthProductByInput();
 		double price = fetchDoubleByInput();
 		app.getProductController().updatePrice(p.barcode, price, S3Const.TASK_UPDATE_PRODUCT_PRICE);
 	}
@@ -65,8 +66,8 @@ public class S3ManagerMenu extends S3Menu {
 		}
 	}
 
-	private Product fecthProductByInput() {
-		Product p = null;
+	private S3Product fecthProductByInput() {
+		S3Product p = null;
 		do {
 			try {
 				System.out.println("Please enter product Barcode:");

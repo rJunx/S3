@@ -47,33 +47,33 @@ public class S3CustomerMenu extends S3Menu {
     public void onRevData(int taskType, Object data){
 		switch (taskType) {
 		case S3Const.TASK_SHOW_PROD_BY_ID:
-			onShowProductByID((ArrayList<Product>)data);
+			onShowProductByID((ArrayList<S3Product>)data);
 			break;
 		case S3Const.TASK_SHOW_ALL_PRODUCTS:
-			onShowAllProducts((ArrayList<Product>)data);
+			onShowAllProducts((ArrayList<S3Product>)data);
 		case S3Const.TASK_SHOW_CUSTOMER_BY_ID:
-			onShowCustomerByID((Customer)data);
+			onShowCustomerByID((S3Customer)data);
 			break;
 		default:
 			break;
 		}
 	}
     
-    private void onShowProductByID(ArrayList<Product> data) {
+    private void onShowProductByID(ArrayList<S3Product> data) {
 		//Print out all the product's price
 		for(int i = 0; i < data.size(); i++){
 			System.out.print(data.get(i).barcode + "   " + data.get(i));
 		}
 	}
 
-	private void onShowAllProducts(ArrayList<Product> data) {
+	private void onShowAllProducts(ArrayList<S3Product> data) {
 		//Print out the only product, so data.size() = 1 actually
 		for(int i = 0; i < data.size(); i++){
 			System.out.print(data.get(i).name);
 		}
 	}
 	
-	private void onShowCustomerByID(Customer data){
+	private void onShowCustomerByID(S3Customer data){
 		// Do something with the customer found in database
 	}
 	

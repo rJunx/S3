@@ -20,7 +20,7 @@ public abstract class S3Const {
 	
 	public static final String TABLE_USER_ID = "ID";
 	public static final String TABLE_CUSTOMER_POINT = "POINT";
-	public static final String TABLE_CUSTOMER_CASH = "CASH";
+	public static final String TABLE_CUSTOMER_BALANCE = "CASH";
 	public static final String TABLE_STAFF_TYPE = "TYPE";
 	
 	public static final String TABLE_TRANSACTION_ID = "ID";
@@ -53,4 +53,5 @@ public abstract class S3Const {
 	public static final int TASK_SHOW_TRANSACTION_BY_ID = 10;
 	
 	public static final int TASK_SYNC_PRODUCT = 11;
+	public static final int TASK_SYNC_CUSTOMER = 12;
 }

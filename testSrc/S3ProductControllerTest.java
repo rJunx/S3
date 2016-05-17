@@ -92,12 +92,12 @@ public class S3ProductControllerTest implements S3ClientIF {
 	}
 	
 	@Override
-	public void revMsg(String msg) throws RemoteException {
+	public void receiveMsg(String msg) throws RemoteException {
 		// TODO Auto-generated method stub
 	}
 
 	@Override
-	public void revData(int classType, Object data) throws RemoteException {
+	public void receiveData(int classType, Object data) throws RemoteException {
 		// TODO Auto-generated method stub
 		if (data == null) {
 			return;

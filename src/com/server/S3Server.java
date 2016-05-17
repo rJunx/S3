@@ -6,7 +6,6 @@ import java.rmi.server.UnicastRemoteObject;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 import com.client.S3ClientIF;
@@ -48,7 +47,7 @@ public class S3Server extends UnicastRemoteObject implements S3ServerIF {
 	}
 
 	@Override
-	public void broadcastMessage(Map args) throws RemoteException {
+	public void broadcastMessage(Map<?, ?> args) throws RemoteException {
 		// TODO Auto-generated method stub
 		Iterator<String> itr = clients.keySet().iterator();
 		int taskType = (int)args.get("taskType");
@@ -86,7 +85,7 @@ public class S3Server extends UnicastRemoteObject implements S3ServerIF {
 //			
 			S3TaskIF task = (S3TaskIF)tcCons[0].newInstance( args );
 			task.run(this);
-			client.revData(-1, task.getResult());
+			client.receiveData(-1, task.getResult());
 
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -125,7 +124,7 @@ public class S3Server extends UnicastRemoteObject implements S3ServerIF {
 			
 			S3TaskIF task = (S3TaskIF)tcCons[0].newInstance( args );
 			task.run(this);
-			client.revData(taskType, task.getResult());
+			client.receiveData(taskType, task.getResult());
 			
 		} catch (Exception e) {
 			// TODO Auto-generated catch block

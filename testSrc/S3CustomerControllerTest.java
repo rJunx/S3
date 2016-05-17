@@ -55,7 +55,7 @@ public class S3CustomerControllerTest implements S3ClientIF {
 	@Test
 	public void testUpdateCash() throws RemoteException, SQLException {
 		FLAG = 0;
-		controller.updateCash(userID, newCash);
+		controller.updateBalance(userID, newCash);
 		controller.onGetCustomerInfoByID(userID, S3Const.TASK_SHOW_CUSTOMER_BY_ID);
 	}
 	
@@ -74,13 +74,13 @@ public class S3CustomerControllerTest implements S3ClientIF {
 	}
 
 	@Override
-	public void revMsg(String msg) throws RemoteException {
+	public void receiveMsg(String msg) throws RemoteException {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void revData(int classType, Object data) throws RemoteException {
+	public void receiveData(int classType, Object data) throws RemoteException {
 		// TODO Auto-generated method stub
 		if (data == null) {
 			return;
@@ -91,7 +91,7 @@ public class S3CustomerControllerTest implements S3ClientIF {
 		
 		switch(FLAG) {
 		case 0:
-			value = ((BigDecimal) tuple.get(S3Const.TABLE_CUSTOMER_CASH)).doubleValue();
+			value = ((BigDecimal) tuple.get(S3Const.TABLE_CUSTOMER_BALANCE)).doubleValue();
 			Assert.assertEquals(newCash, value);
 			break;
 		case 1:

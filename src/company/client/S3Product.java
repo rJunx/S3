@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.util.Map;
 import company.S3Const;
 
-public class Product {
+public class S3Product {
 	public String barcode;
 	public String name;
 	public double price;
@@ -14,7 +14,7 @@ public class Product {
 	public int replenishLv;
 	public String supplier;
 	
-	public Product(String barcode, String name, double price, int promotion, double discount, int stockLv, int replenishLv, String supplier){
+	public S3Product(String barcode, String name, double price, int promotion, double discount, int stockLv, int replenishLv, String supplier){
 		this.barcode= barcode;
 		this.name = name;
 		this.price = price;
@@ -25,7 +25,7 @@ public class Product {
 		this.supplier = supplier;
 	}
 	
-	public Product(Map<?, ?> row) {
+	public S3Product(Map<?, ?> row) {
 		update(row);
 	}
 	
