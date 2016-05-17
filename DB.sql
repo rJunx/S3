@@ -1,4 +1,4 @@
-drop table S3T_Customer;
+﻿drop table S3T_Customer;
 drop table S3T_Staff;
 drop table S3T_Product;
 drop table S3T_Transation;
@@ -25,6 +25,7 @@ create table S3T_Product (
   discount int default 0 not null,
   stockLv int default 0 not null,
   replenishLv int default 0 not null,
+  reorderQty int default 0 not null,
   supplier varchar(100),
   PRIMARY KEY (barcode)
 );
