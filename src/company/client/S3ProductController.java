@@ -69,6 +69,7 @@ public class S3ProductController {
 		values.add(discount);	//DISCOUNT
 		
 		server.doTask(uuid, S3Const.CLASS_TASK_NAME, S3Const.TABLE_PRODUCT, S3TableOPType.INSERT, values, null);
+		this.postGetProductInfoByID(productID, S3Const.TASK_SYNC_PRODUCT);
 	}
 
 	public void postGetProductInfoByID(String productID, int taskType) throws RemoteException, SQLException {

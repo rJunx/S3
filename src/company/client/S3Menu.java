@@ -13,17 +13,58 @@ public abstract class S3Menu {
 		app = application;
 	}
 	
-	protected double fetchDoubleByInput() {
+	protected double fetchDoubleFromInput(String initMsg, String errMsg) {
 		double value = -1;
+		Boolean flag = true;
 		
 		do {
 			try {
-				System.out.println("Please enter a number:");
+				System.out.println(initMsg);
 				value = scan.nextDouble();
+				flag = false;
 			} catch (Exception e) {
-				value = -1;
+				if (errMsg != null) {
+					System.out.println(errMsg);
+				}
 			}
-		} while (value == -1);
+		} while (flag);
+		return value;
+	}
+	
+	protected String fetchStringFromInput(String initMsg, String errMsg) {
+		String value = null;
+		Boolean flag = true;
+		
+		do {
+			try {
+				System.out.println(initMsg);
+				value = scan.next();
+				flag = false;
+			} catch (Exception e) {
+				if (errMsg != null) {
+					System.out.println(errMsg);
+				}
+			}
+		} while (flag);
+		return value;
+	}
+	
+	
+	protected int fetchIntFromInput(String initMsg, String errMsg) {
+		int value = -1;
+		Boolean flag = true;
+		
+		do {
+			try {
+				System.out.println(initMsg);
+				value = scan.nextInt();
+				flag = false;
+			} catch (Exception e) {
+				if (errMsg != null) {
+					System.out.println(errMsg);
+				}
+			}
+		} while (flag);
 		return value;
 	}
 	
