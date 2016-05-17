@@ -1,12 +1,12 @@
 package company.client;
 
-public class Supplier {
+public class S3Supplier {
 	// local variables
 	public String id; 
 	public String email;
 	
 	// constructor
-	public Supplier(String id, String email){
+	public S3Supplier(String id, String email){
 		this.id = id;
 		this.email = email;
 	}

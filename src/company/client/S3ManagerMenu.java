@@ -20,53 +20,129 @@ public class S3ManagerMenu extends S3Menu {
 		// TODO Auto-generated method stub
 
 		/* Read user's option and implement the corresponding task*/
-		int optionNumber;//option number from menu, selected by user
 		
+		int option = -1;
 		do{
-			System.out.println();
-			System.out.println("								User:" + app.getCurrentUser().getID());
-			System.out.println("Which of the following manager task would you like to do?");
-			System.out.println(" 1.Update Price");
-			System.out.println(" 2.Update Stock Level");
-			System.out.println(" 3.Update Promotion discount to products ");
-			System.out.println(" 4.Update Supplier information");
-			System.out.println(" 5.Get Sales Report");
-			System.out.println(" 6.Get Supplier Report ");//do not have enough info to work out the out of scope supplies
-			System.out.println(" 7.Get Top 10 best sellers ");
-			System.out.println(" 8.Add Product ");
-			System.out.println(" 9.Add Customer ");
-			System.out.println("10.Add Staff ");
-			System.out.println("11.Show All Product Info");
-			System.out.println("12.Logout ");
-			System.out.print("Please enter your option: ");
-			optionNumber = scan.nextInt();
+			System.out.println("\n								User:" + app.getCurrentUser().getID());
+			System.out.println("\n\n\n\t\tManager Menu \n");
+			System.out.println("\tUpdate Unit Price						1");
+			System.out.println("\tUpdate Stock Level					2");
+			System.out.println("\tUpdate Product Promotion Plan			3");
+			System.out.println("\tUpdate Supplier Information			4");
+			System.out.println("\tUpdate Product Discount				5");
+			System.out.println("\tUpdate Product Replenish Level		6");
+//			System.out.println("\tUpdate Product Re-order Level			7");	// need to update database first
+			
+			System.out.println("\tGenerate Sales Report					8");
+			System.out.println("\tGenerate Purchase Order Report		9");
+			System.out.println("\tGenerate Supply Report				10"); //do not have enough info to work out the out of scope supplies
+			System.out.println("\tGenerate Best-Seller Report			11");
+			System.out.println("\tShow All Product Informaiton			12");
+			
+			System.out.println("\n\tAdd Product							13");
+			System.out.println("\tAdd Staff								14");
 
-			switch (optionNumber){
+			System.out.println("\n\tLog Out								0");
+
+			option = scan.nextInt();
+
+			switch (option){
 			case 1:
 				onUpdatePrice();
 				break;
 			case 2:
+				onUpdateStockLv();
 				break;
 			case 3:
+				onUpdatePromotionPlan();
+				break;
+			case 4:
+				onUpdateSupplierInfo(); // INCOMPLETED
+				break;
+			case 5:
+				onUpdateProductDiscount();
+				break;
+			case 6:
+				onUpdateProductReplenishLv();
+				break;
+			case 7:
 				break;
 			case 8:
-				onAddProduct();
 				break;
 			case 9:
 				break;
 			case 10:
-				onAddStaff();
 				break;
 			case 11:
-				onShowAllProductInfo();
 				break;
 			case 12:
+				onShowAllProductInfo();
+				break;
+			case 13:
+				onAddProduct();
+				break;
+			case 14:
+				onAddStaff();
+				break;
+			case 0:
 				app.logout();
 				break;
+				
 			default:
 				System.out.println("Please enter a valid option.");
 			} 
-		}while (optionNumber!=12);
+		}while (option != 0);
+	}
+	
+	// How to name the staff? No need to add anything at the front?
+	private void onAddStaff() throws RemoteException, SQLException{
+		boolean flag = true;
+		String id = "";
+		do {
+			try {
+				System.out.println("Please enter staff ID: ");
+				id = scan.next();
+				flag = false;
+				
+				if (S3User.checkUserType(id) != S3UserType.STAFF) {	//  should be "=="????
+					throw new Exception();
+				}
+			} catch(Exception e) {
+				flag = true;
+				System.out.println("Invalid staff ID.");
+			}
+		} while (flag);
+		
+		int ntype = this.fetchIntFromInput("Please enter staff type\n0: sales staff\n1: warehouse staff\n2: manager", "Invalid number.");
+		app.getStaffController().create(id, ntype);
+	}
+	
+	private void onUpdateSupplierInfo(){
+		
+	}
+	
+	private void onUpdateProductReplenishLv() throws RemoteException, SQLException{
+		S3Product p = fecthProductByInput();
+		int replenishLv = fetchIntFromInput("Please enter product replenish level", "Invaild number.");
+		app.getProductController().update(p.barcode, S3Const.TASK_UPDATE_PRODUCT_REPLENISH_LV, S3Const.TABLE_PRODUCT_REPLENISH_LV, replenishLv);
+	}
+	
+	private void onUpdateProductDiscount() throws RemoteException, SQLException{
+		S3Product p = fecthProductByInput();
+		int discount = fetchIntFromInput("Please enter product discount (0-100)%", "Invaild number.");
+		app.getProductController().update(p.barcode, S3Const.TASK_UPDATE_PRODUCT_DISCOUNT, S3Const.TABLE_PRODUCT_DISCOUNT, discount);
+	}
+	
+	private void onUpdatePromotionPlan() throws RemoteException, SQLException{
+		S3Product p = fecthProductByInput();
+		int planNum = fetchIntFromInput("Please enter product promotion plan", "Invaild number.");
+		app.getProductController().update(p.barcode, S3Const.TASK_UPDATE_PRODUCT_PROMOTION, S3Const.TABLE_PRODUCT_PROMOTION, planNum);
+	}
+	
+	private void onUpdateStockLv() throws RemoteException, SQLException{
+		S3Product p = fecthProductByInput();
+		int stockLv = fetchIntFromInput("Please enter product stock level", "Invaild number.");
+		app.getProductController().updateStockLevel(p.barcode, stockLv);
 	}
 	
 	private void onShowAllProductInfo() {
@@ -87,27 +163,7 @@ public class S3ManagerMenu extends S3Menu {
 		}
 	}
 	
-	private void onAddStaff() throws RemoteException, SQLException  {
-		boolean flag = true;
-		String id = "";
-		do {
-			try {
-				System.out.println("Please enter staff ID: ");
-				id = scan.next();
-				flag = false;
-				
-				if (S3User.checkUserType(id) != S3UserType.STAFF) {
-					throw new Exception();
-				}
-			} catch(Exception e) {
-				flag = true;
-				System.out.println("Invalid staff ID.");
-			}
-		} while (flag);
-		
-		int ntype = this.fetchIntFromInput("Please enter staff type\n0: sales staff\n1: warehouse staff\n2: manager", "Invalid number.");
-		app.getStaffController().create(id, ntype);	
-	}
+
 	
 	private void onUpdatePrice() throws RemoteException, SQLException {
 		S3Product p = fecthProductByInput();
@@ -161,4 +217,5 @@ public class S3ManagerMenu extends S3Menu {
 
 		return p;
 	}
+
 }

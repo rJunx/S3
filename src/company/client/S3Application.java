@@ -24,10 +24,10 @@ public class S3Application{
 	private ArrayList<S3Product> productList = new ArrayList<S3Product>();
 	private ArrayList<S3Customer> customerList = new ArrayList<S3Customer>();
 	private ArrayList<S3Staff> staffList = new ArrayList<S3Staff>();
-	private ArrayList<Transaction> transactList = new ArrayList<Transaction>();
-	private ArrayList<Supplier> supplierList = new ArrayList<Supplier>();
-	private ArrayList<Supply> supplyList = new ArrayList<Supply>();
-	private ArrayList<OrderItem> orderItemList = new ArrayList<OrderItem>();
+	private ArrayList<S3Transaction> transactList = new ArrayList<S3Transaction>();
+	private ArrayList<S3Supplier> supplierList = new ArrayList<S3Supplier>();
+	private ArrayList<S3Supply> supplyList = new ArrayList<S3Supply>();
+	private ArrayList<S3OrderItem> orderItemList = new ArrayList<S3OrderItem>();
 	
 	private HashMap<S3Product, Integer> productInCart = new HashMap<S3Product, Integer>();
 	
@@ -54,13 +54,15 @@ public class S3Application{
 	public ArrayList<S3Product> getProductList(){return productList;}
 	public ArrayList<S3Customer> getCustomerList(){return customerList;}
 	public ArrayList<S3Staff> getStaffList(){return staffList;}
-	public ArrayList<Transaction> getTransactionList(){return transactList;}
-	public ArrayList<Supplier> getSupplierList(){return supplierList;}
-	public ArrayList<Supply> getSupplyList(){return supplyList;}
-	public ArrayList<OrderItem> getOrderItemList(){return orderItemList;}
+	public ArrayList<S3Transaction> getTransactionList(){return transactList;}
+	public ArrayList<S3Supplier> getSupplierList(){return supplierList;}
+	public ArrayList<S3Supply> getSupplyList(){return supplyList;}
+	public ArrayList<S3OrderItem> getOrderItemList(){return orderItemList;}
 
+	public HashMap<S3Product, Integer> getProdInCart(){return productInCart;}
+	
 	public S3ProductController getProductController() {return productController;}
-	public S3CustomerController getCUstomerController() {return customerController;}
+	public S3CustomerController getCustomerController() {return customerController;}
 	public S3StaffController getStaffController() {return staffController;}
 	public S3User getCurrentUser() {return user;}
 	
@@ -197,7 +199,6 @@ public class S3Application{
 		}
 	}
 	
-	
 	public void mSelectProdByList(){
 		char exit = ' ';
 		
@@ -220,7 +221,6 @@ public class S3Application{
 			System.out.println("\n Go back(Y/N)? Press Y for exist.");
 		}while(exit != 'Y' && exit != 'y');
 	}
-	
 	
 	public void sendStaffLogin() throws RemoteException, SQLException {
 	    System.out.print("Enter Staff ID : ");  
@@ -272,11 +272,7 @@ public class S3Application{
 			//Show final result
 			System.out.println("All the selected items: ");
 			
-			for (Map.Entry<S3Product, Integer> entry : productInCart.entrySet()) {
-			    S3Product product = entry.getKey();
-			    double qty = entry.getValue();
-			    System.out.println("\n Product name: " + product.name + "Quantity (kg/serving)" + qty);
-			}
+			printProdInCart();
 			
 			// get total price
 			double totalCost = getTotalPrice(productInCart, c.getPoint());
@@ -286,7 +282,7 @@ public class S3Application{
 			int newPoint = c.getPoint() - (int)(c.getPoint()/20) + (int)(totalCost/10);
 			
 			if(c.getBalance() >= totalCost){
-				System.out.println("\n Continue to buy(y/n)");
+				System.out.println("\n No cancellation permits, continue to buy(y/n)");
 				char ch = scan.nextLine().charAt(0);
 				if (ch == 'y') {
 					// update database customer info and product info
@@ -298,16 +294,27 @@ public class S3Application{
 						 int qty = entry.getValue();
 						 
 						 int newStockLv = product.stockLv - qty;
-						 this.productController.updateStockLevel(product.barcode, newStockLv);
+						 productController.updateStockLevel(product.barcode, newStockLv);
 					}
 					// !!!!!!!!!!!!update transaction table 
 					
 					// !!!!!!!!!!!!update order item table
+					
+					// clear prodInCart list
+					productInCart.clear();
 			}else{
 				return;
 			}
 			
 			}
+		}
+	}
+	
+	public void printProdInCart(){
+		for (Map.Entry<S3Product, Integer> entry : productInCart.entrySet()) {
+		    S3Product product = entry.getKey();
+		    double qty = entry.getValue();
+		    System.out.println("\nProduct ID: " + product.barcode + "Product name: " + product.name + "Quantity (kg/serving): " + qty + "\n");
 		}
 	}
 	
@@ -428,7 +435,7 @@ public class S3Application{
 	}
 	
 	//------------------------------Talk to xxxxControllers for SQL tasks --------------------------------------------------
-	
+	// ????????????? OrderItemo
 	public static void changeBulkSalePlan(int planNo, int planItem, double value){
 		S3OrderItemController.bulkSalePlan[planNo-1][planItem-1] = value;
 	}
@@ -458,7 +465,7 @@ public class S3Application{
 				// !!!!!!!!! Date-related
 				date = (Date)row.get(S3Const.TABLE_TRANSACTION_DATE);
 				custID = (String)row.get(S3Const.TABLE_TRANSACTION_CUST_ID);
-				Transaction transaction = new Transaction(id, cost, date, custID);
+				S3Transaction transaction = new S3Transaction(id, cost, date, custID);
 				
 				transactList.add(transaction);
 			}
@@ -493,10 +500,7 @@ public class S3Application{
 				return (price - (int)(points/20)* 5);
 			else 
 				return 0.0;
-		}
-		
-// ----------------------------------------------------------------------------------------------
-		
+		}		
 		
 		// to get the total price based on the given (product + qty)
 		public double getTotalPrice(HashMap<S3Product, Integer> orderList, int custPoints){

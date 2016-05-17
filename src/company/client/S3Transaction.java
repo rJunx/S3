@@ -2,7 +2,7 @@ package company.client;
 
 import java.util.Date;
 
-public class Transaction {
+public class S3Transaction {
 
 	// local variable
 	public String id;
@@ -11,7 +11,7 @@ public class Transaction {
 	public String custID;
 	
 	// constructor
-	public Transaction(String id, double cost, Date date, String custID){
+	public S3Transaction(String id, double cost, Date date, String custID){
 		this.id = id;
 		this.cost =cost;
 		this.date = date;

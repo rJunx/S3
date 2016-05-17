@@ -2,7 +2,7 @@ package company.client;
 
 import java.util.Date;
 
-public class Supply {
+public class S3Supply {
 	// local variables
 	public String supplierID; 
 	public String productID;
@@ -10,7 +10,7 @@ public class Supply {
 	public Date date;
 	
 	// constructor
-	public Supply(String supplierID, String productID, double qty, Date date){
+	public S3Supply(String supplierID, String productID, double qty, Date date){
 		this.supplierID = supplierID;
 		this.productID = productID;
 		this.qty = qty;

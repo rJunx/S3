@@ -48,8 +48,7 @@ public abstract class S3Menu {
 		} while (flag);
 		return value;
 	}
-	
-	
+		
 	protected int fetchIntFromInput(String initMsg, String errMsg) {
 		int value = -1;
 		Boolean flag = true;
@@ -67,6 +66,8 @@ public abstract class S3Menu {
 		} while (flag);
 		return value;
 	}
+	
+
 	
 	abstract void run() throws RemoteException, SQLException;
 	abstract void onReceiveData(int taskType, List<?> data) throws RemoteException, SQLException;
