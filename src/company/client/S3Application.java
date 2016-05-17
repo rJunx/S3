@@ -65,11 +65,12 @@ public class S3Application implements S3CustomerMenuIF{
 	//Basic function for unknown user
 	public char menu() {
 		System.out.println("\n\n\n\t\tOrder Processing System\n");
-		System.out.println("\tShow All Product List					1");
-		System.out.println("\tSearch Product						2");
-		System.out.println("\tStaff Login							3");
-		System.out.println("\tAdd Order								5");
-		System.out.println("\tPurchase								6");
+		System.out.println("\tSearch Product by ID					1");
+		System.out.println("\tSearch Product by List				2");
+		System.out.println("\tAdd Product by Key-In ID				3");
+		System.out.println("\tAdd Product from Name List			4");
+		System.out.println("\tPay(Customer Log-in Required)			5");
+		System.out.println("\tStaff Log-in							6");
 		System.out.println("\tExit									e");
 		System.out.println("\n\t**************************************");
 		System.out.print("\tYour choice : ");
@@ -88,15 +89,22 @@ public class S3Application implements S3CustomerMenuIF{
 				ch = menu();
 				switch (ch) {
 				case '1':
-					onShowAllProducts();
+					mSearchProdByID();
 					break;
 				case '2':
+					mSearcyProdByList();
 					break;
 				case '3':
-					sendStaffLogin();
+					mAddProdByID();
+					break;
+				case '4':
+					mAddProdByList();
+					break;
+				case '5':
+					onPurchase();
 					break;
 				case '6':
-					onPurchase();
+					sendStaffLogin();
 					break;
 				}
 			}
@@ -108,7 +116,54 @@ public class S3Application implements S3CustomerMenuIF{
 		scan.nextLine();
 	}
 	
-	private void onShowAllProducts() {
+	private void mSearcyProdByList() {
+		char exit = ' ';
+		
+		do{
+			System.out.print("All the products are list below.");
+			listAllProducts();
+			System.out.print("Please select the ID for more informaiton.");
+			int selected = scan.nextInt();
+			System.out.println("ID: " + productList.get(selected).barcode);
+			System.out.println("Name: " + productList.get(selected).name);
+			System.out.println("Unit Price: " + productList.get(selected).price);
+			System.out.println("Discount:  " + productList.get(selected).discount);
+			
+			System.out.println("\n Go back(Y/N)? Press Y for exist.");
+		}while(exit == 'Y' || exit == 'y');
+		
+	}
+	
+	private void listAllProducts(){
+		for(int i = 0; i < productList.size(); i++){
+			System.out.println(i + "	" + productList.get(i).name);
+		}
+	}
+	
+	private void mSearchProdByID(){
+		System.out.print("Please key-in product code: ");
+		String input = scan.nextLine();
+		
+		
+	}
+	
+	private S3Product searchProdByID(String id){
+		for(int i = 0; i < productList.size(); i++){
+			if(productList.get(i).barcode.equals(id)){
+				return productList.get(i);
+			}
+		}
+		
+		///// ?!!!!!!!!!!!!!!  NOT COMPLETED
+		return null;
+	};
+	
+	
+	private void mAddProdByID(){
+		
+	}
+	
+	private void mAddProdByList(){
 		
 	}
 	
@@ -164,7 +219,7 @@ public class S3Application implements S3CustomerMenuIF{
 			System.out.println("Continue to buy(y/n)");
 			char ch = scan.nextLine().charAt(0);
 			if (ch == 'y') {
-				
+				// update database customer info and product info
 			}
 		}
 	}
