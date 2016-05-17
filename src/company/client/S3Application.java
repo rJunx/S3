@@ -331,7 +331,7 @@ public class S3Application{
 	
 	//-------------------------------Sync data---------------------------------------------
 	//receive data from server(sender and receiver are the same client)
-	public void onReceiveData(int taskType, Object data) throws RemoteException, SQLException {
+	public void onReceiveData(int taskType, Object data) throws Exception {
 		if (finished_sync_task != TOTAL_SYNC_TASK) {
 			//Sync data before start the application
 			switch (taskType) {
@@ -358,9 +358,6 @@ public class S3Application{
 				menu.onReceiveData(taskType, (List<?>) data);
 			} else {
 				switch (taskType) {
-				case S3Const.TASK_SHOW_ALL_PRODUCTS:
-					onShowAllProducts((List<?>) data);
-					break;
 				case S3Const.TASK_SHOW_STAFF_BY_ID:
 					receiveStaffLogin((List<?>) data);
 					break;
