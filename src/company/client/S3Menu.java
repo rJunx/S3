@@ -69,5 +69,5 @@ public abstract class S3Menu {
 	}
 	
 	abstract void run() throws RemoteException, SQLException;
-	abstract void onReceiveData(int taskType, List<?> data);
+	abstract void onReceiveData(int taskType, List<?> data) throws RemoteException, SQLException;
 }

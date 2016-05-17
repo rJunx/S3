@@ -2,9 +2,12 @@ package company.client;
 
 import java.rmi.RemoteException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 import company.S3Const;
+import company.S3StaffType;
+import company.S3UserType;
 
 public class S3ManagerMenu extends S3Menu {
 	public S3ManagerMenu(S3Application application) {
@@ -33,6 +36,7 @@ public class S3ManagerMenu extends S3Menu {
 			System.out.println(" 8.Add Product ");
 			System.out.println(" 9.Add Customer ");
 			System.out.println("10.Add Staff ");
+			System.out.println("11.Show All Product Info");
 			System.out.println("12.Logout ");
 			System.out.print("Please enter your option: ");
 			optionNumber = scan.nextInt();
@@ -51,6 +55,10 @@ public class S3ManagerMenu extends S3Menu {
 			case 9:
 				break;
 			case 10:
+				onAddStaff();
+				break;
+			case 11:
+				onShowAllProductInfo();
 				break;
 			case 12:
 				app.logout();
@@ -59,6 +67,46 @@ public class S3ManagerMenu extends S3Menu {
 				System.out.println("Please enter a valid option.");
 			} 
 		}while (optionNumber!=12);
+	}
+	
+	private void onShowAllProductInfo() {
+		ArrayList<S3Product> plist = app.getProductList();
+		int l = plist.size();
+		
+		System.out.println("barcode" + "\t"
+						+"name" + "\t"
+						+"price" + "\t"
+						+"stock level" + "\t"
+						+"replenish level" + "\t"
+						+"discount" + "\t"
+						+"promotion" + "\t"
+		);
+		for (int i = 0; i < l; i++) {
+			S3Product p = plist.get(i);
+			System.out.println(p.barcode + '\t' + p.name + '\t' + p.price + '\t' + p.stockLv + '\t' + p.replenishLv + '\t' + p.discount + '\t' + p.promotion);
+		}
+	}
+	
+	private void onAddStaff() throws RemoteException, SQLException  {
+		boolean flag = true;
+		String id = "";
+		do {
+			try {
+				System.out.println("Please enter staff ID: ");
+				id = scan.next();
+				flag = false;
+				
+				if (S3User.checkUserType(id) != S3UserType.STAFF) {
+					throw new Exception();
+				}
+			} catch(Exception e) {
+				flag = true;
+				System.out.println("Invalid staff ID.");
+			}
+		} while (flag);
+		
+		int ntype = this.fetchIntFromInput("Please enter staff type\n0: sales staff\n1: warehouse staff\n2: manager", "Invalid number.");
+		app.getStaffController().create(id, ntype);	
 	}
 	
 	private void onUpdatePrice() throws RemoteException, SQLException {
@@ -92,7 +140,7 @@ public class S3ManagerMenu extends S3Menu {
 		app.getProductController().create(barcode, name, price, stockLv, replenishLv, promotion, discount);
 	}
 	
-	public void onReceiveData(int taskType, List<?> data) {
+	public void onReceiveData(int taskType, List<?> data) throws RemoteException, SQLException {
 		switch(taskType) {
 		case S3Const.TASK_UPDATE_PRODUCT_PRICE:
 			break;

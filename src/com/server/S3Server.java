@@ -47,7 +47,7 @@ public class S3Server extends UnicastRemoteObject implements S3ServerIF {
 	}
 
 	@Override
-	public void broadcastMessage(Map<?, ?> args) throws RemoteException {
+	public void broadcastMessage(Map<?, ?> args) throws Exception {
 		// TODO Auto-generated method stub
 		Iterator<String> itr = clients.keySet().iterator();
 		int taskType = (int)args.get("taskType");

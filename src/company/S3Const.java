@@ -54,4 +54,6 @@ public abstract class S3Const {
 	
 	public static final int TASK_SYNC_PRODUCT = 11;
 	public static final int TASK_SYNC_CUSTOMER = 12;
+	
+	public static final int TASK_TOP_UP_CUSTOMER = 13;
 }

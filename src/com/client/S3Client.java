@@ -44,17 +44,17 @@ public class S3Client extends UnicastRemoteObject implements S3ClientIF, Runnabl
 	}
 
 	@Override
-	public void receiveMsg(String msg) throws RemoteException {
+	public void receiveMsg(String msg) throws Exception {
 		// TODO Auto-generated method stub
 		System.out.println( msg );
 	}
 	
-	public void receiveData( int taskType, Object data ) throws RemoteException {
+	public void receiveData( int taskType, Object data ) throws Exception {
 		// TODO Auto-generated method stub
 		app.onReceiveData(taskType, data);
 	}
 	
-	public void receiveBordercastData( int taskType, Object data ) throws RemoteException {
+	public void receiveBordercastData( int taskType, Object data ) throws Exception {
 		app.onReceiveBordercastData(taskType, data);
 	}
 	

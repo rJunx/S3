@@ -244,7 +244,7 @@ public class S3Application implements S3CustomerMenuIF{
 	
 	//-------------------------------Sync data---------------------------------------------
 	//receive data from server(sender and receiver are the same client)
-	public void onReceiveData(int taskType, Object data) throws RemoteException {
+	public void onReceiveData(int taskType, Object data) throws Exception {
 		if (finished_sync_task != TOTAL_SYNC_TASK) {
 			//Sync data before start the application
 			switch (taskType) {
