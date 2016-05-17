@@ -3,7 +3,9 @@ package company.client;
 import java.rmi.RemoteException;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 
+import company.S3Const;
 import company.S3UserType;
 
 public class S3SaleStaffMenu extends S3Menu {
@@ -44,9 +46,21 @@ public class S3SaleStaffMenu extends S3Menu {
 	}
 
 	@Override
-	void onReceiveData(int taskType, List<?> data) {
+	public void onReceiveData(int taskType, List<?> data) throws RemoteException, SQLException {
 		// TODO Auto-generated method stub
-		
+		switch(taskType) {
+		case S3Const.TASK_TOP_UP_CUSTOMER:
+			if (data == null || data.size() == 0) {
+				System.out.println("Customer not exit.");
+			} else {
+				S3Customer c = new S3Customer((Map<?, ?>) data.get(0));
+				double value = this.fetchDoubleFromInput("Please input top up value", "Invalid number.");
+				app.getCUstomerController().updateBalance(c.getID(), c.getBalance()+value);
+			}
+			break;
+			default:
+				break;
+		}
 	}
 	
 	public void updateBalance() throws RemoteException, SQLException {
@@ -67,7 +81,6 @@ public class S3SaleStaffMenu extends S3Menu {
 			}
 		} while (flag);
 		
-		double value = this.fetchDoubleByInput();
-		app.getCUstomerController().updateBalance(id, value);
+		app.getCUstomerController().onGetCustomerInfoByID(id, S3Const.TASK_TOP_UP_CUSTOMER);
 	}
 }
