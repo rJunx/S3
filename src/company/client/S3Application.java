@@ -14,7 +14,7 @@ import company.S3Const;
 import company.S3StaffType;
 import company.S3UserType;
 
-public class S3Application implements S3CustomerMenuIF{
+public class S3Application{
 	private S3ProductController productController;
 	private S3CustomerController customerController;
 	private S3StaffController staffController;
@@ -24,10 +24,12 @@ public class S3Application implements S3CustomerMenuIF{
 	private ArrayList<S3Product> productList = new ArrayList<S3Product>();
 	private ArrayList<S3Customer> customerList = new ArrayList<S3Customer>();
 	private ArrayList<S3Staff> staffList = new ArrayList<S3Staff>();
-	private ArrayList<Transaction> transactList = new ArrayList<Transaction>();
-	private ArrayList<Supplier> supplierList = new ArrayList<Supplier>();
-	private ArrayList<Supply> supplyList = new ArrayList<Supply>();
-	private ArrayList<OrderItem> orderItemList = new ArrayList<OrderItem>();
+	private ArrayList<S3Transaction> transactList = new ArrayList<S3Transaction>();
+	private ArrayList<S3Supplier> supplierList = new ArrayList<S3Supplier>();
+	private ArrayList<S3Supply> supplyList = new ArrayList<S3Supply>();
+	private ArrayList<S3OrderItem> orderItemList = new ArrayList<S3OrderItem>();
+	
+	private HashMap<S3Product, Integer> productInCart = new HashMap<S3Product, Integer>();
 	
 	private static final int TOTAL_SYNC_TASK = 1;
 	private int finished_sync_task = 0;
@@ -52,27 +54,28 @@ public class S3Application implements S3CustomerMenuIF{
 	public ArrayList<S3Product> getProductList(){return productList;}
 	public ArrayList<S3Customer> getCustomerList(){return customerList;}
 	public ArrayList<S3Staff> getStaffList(){return staffList;}
-	public ArrayList<Transaction> getTransactionList(){return transactList;}
-	public ArrayList<Supplier> getSupplierList(){return supplierList;}
-	public ArrayList<Supply> getSupplyList(){return supplyList;}
-	public ArrayList<OrderItem> getOrderItemList(){return orderItemList;}
+	public ArrayList<S3Transaction> getTransactionList(){return transactList;}
+	public ArrayList<S3Supplier> getSupplierList(){return supplierList;}
+	public ArrayList<S3Supply> getSupplyList(){return supplyList;}
+	public ArrayList<S3OrderItem> getOrderItemList(){return orderItemList;}
 
+	public HashMap<S3Product, Integer> getProdInCart(){return productInCart;}
+	
 	public S3ProductController getProductController() {return productController;}
-	public S3CustomerController getCUstomerController() {return customerController;}
+	public S3CustomerController getCustomerController() {return customerController;}
 	public S3StaffController getStaffController() {return staffController;}
-	public S3User getCurrentUser() { return user; }
+	public S3User getCurrentUser() {return user;}
 	
 	//Basic function for unknown user
 	public char menu() {
 		System.out.println("\n\n\n\t\tOrder Processing System\n");
-		System.out.println("\tSearch Product by ID\t\t\t1");
-		System.out.println("\tSearch Product by List\t\t\t2");
-		System.out.println("\tShow All Product\t\t\t3");
-		System.out.println("\tAdd Product by Key-In ID\t\t4");
-		System.out.println("\tAdd Product from Name List\t\t5");
-		System.out.println("\tPay(Customer Log-in Required)\t\t6");
-		System.out.println("\tStaff Log-in\t\t\t\t7");
-		System.out.println("\tExit\t\t\t\t\te");
+		System.out.println("\tSearch Product by ID					1");
+		System.out.println("\tSearch Product by List				2");
+		System.out.println("\tSelect Product by Key-in ID			3");
+		System.out.println("\tSelect Product from Name List			4");
+		System.out.println("\tPay(Customer Log-in Required)			5");
+		System.out.println("\tStaff Log-in							6");
+		System.out.println("\tExit									e");
 		System.out.println("\n\t**************************************");
 		System.out.print("\tYour choice : ");
 		char ch = scan.nextLine().charAt(0);
@@ -96,18 +99,15 @@ public class S3Application implements S3CustomerMenuIF{
 					mSearcyProdByList();
 					break;
 				case '3':
-					showAllProduct();
+					mSelectProdByID();
 					break;
 				case '4':
-					mAddProdByID();
+					mSelectProdByList();
 					break;
 				case '5':
-					mAddProdByList();
-					break;
-				case '6':
 					onPurchase();
 					break;
-				case '7':
+				case '6':
 					sendStaffLogin();
 					break;
 				}
@@ -120,23 +120,7 @@ public class S3Application implements S3CustomerMenuIF{
 		scan.nextLine();
 	}
 	
-	private void showAllProduct() {
-		int l = productList.size();
-		
-		System.out.println("barcode" + "\t"
-						+"name" + "\t"
-						+"price" + "\t"
-						+"stock level" + "\t"
-						+"discount" + "\t"
-						+"promotion" + "\t"
-		);
-		for (int i = 0; i < l; i++) {
-			S3Product p = productList.get(i);
-			System.out.println(p.barcode + '\t' + p.name + '\t' + p.price + '\t' + p.stockLv + '\t' + p.discount + '\t' + p.promotion);
-		}
-	}
-	
-	private void mSearcyProdByList() {
+	public void mSearcyProdByList() {
 		char exit = ' ';
 		
 		do{
@@ -144,50 +128,101 @@ public class S3Application implements S3CustomerMenuIF{
 			listAllProducts();
 			System.out.print("Please select the ID for more informaiton.");
 			int selected = scan.nextInt();
-			System.out.println("ID: " + productList.get(selected).barcode);
-			System.out.println("Name: " + productList.get(selected).name);
-			System.out.println("Unit Price: " + productList.get(selected).price);
-			System.out.println("Discount:  " + productList.get(selected).discount);
+			
+			printOneProductInfo(productList.get(selected));
 			
 			System.out.println("\n Go back(Y/N)? Press Y for exist.");
-		}while(exit == 'Y' || exit == 'y');
+		}while(exit != 'Y' && exit != 'y');
 		
 	}
 	
-	private void listAllProducts(){
+	public void listAllProducts(){
 		for(int i = 0; i < productList.size(); i++){
 			System.out.println(i + "	" + productList.get(i).name);
 		}
 	}
 	
-	private void mSearchProdByID(){
-		System.out.print("Please key-in product code: ");
-		String input = scan.nextLine();
-		
-		
+	public void printOneProductInfo(S3Product product){
+		System.out.println("ID: " + product.barcode);
+		System.out.println("Name: " + product.name);
+		System.out.println("Unit Price: " + product.price);
+		System.out.println("Discount:  " + product.discount);
 	}
-	
-	private S3Product searchProdByID(String id){
-		for(int i = 0; i < productList.size(); i++){
-			if(productList.get(i).barcode.equals(id)){
-				return productList.get(i);
+		
+	public void mSearchProdByID(){
+		char exit = ' ';
+		do{
+			System.out.println("Please key-in product code: ");
+			String prodID = scan.nextLine();
+			S3Product product = getProductByBarcode(prodID);	
+			
+			if(product != null){
+				printOneProductInfo(product);
+			}else{
+				System.out.println("Invalid product ID! Retry please!");
 			}
+			System.out.println("\n Go back(Y/N)? Press Y for exist.");	
+		}while(exit != 'Y' && exit != 'y');
+	}
+	
+	public void mSelectProdByID(){
+		char exit = ' ';
+		do{
+			System.out.println("Please key-in product code: ");
+			String prodID = scan.nextLine();
+			S3Product product = getProductByBarcode(prodID);	
+			
+			if(product == null)
+				System.out.println("Invalid product ID! Retry please!");
+			
+			System.out.println("Please key-in weight(kg)/quanitity: ");
+			int qty = scan.nextInt();
+			
+			// check duplicates, stock level before adding
+			
+			if(qty > product.stockLv){
+				System.out.println("Check your quantity! It's great than the stock level");
+			}else{
+				checkDuplicatesBeforeAdd(product, qty);
+			}	
+			
+			System.out.println("\n Go back(Y/N)? Press Y for exist.");	
+		}while(exit != 'Y' && exit != 'y');
+	}
+	
+	public void checkDuplicatesBeforeAdd(S3Product product, int qty){
+		if(productInCart.containsKey(product)){
+			int oldQty = productInCart.get(product);
+			productInCart.put(product, qty + oldQty);
+		}else{
+			productInCart.put(product, qty);
 		}
-		
-		///// ?!!!!!!!!!!!!!!  NOT COMPLETED
-		return null;
-	};
-	
-	
-	private void mAddProdByID(){
-		
 	}
 	
-	private void mAddProdByList(){
+	public void mSelectProdByList(){
+		char exit = ' ';
 		
+		do{
+			System.out.print("All the products are list below.");
+			listAllProducts();
+			System.out.print("Please select the ID to add in shopping list.");
+			int selected = scan.nextInt();
+			
+			System.out.println("Please key-in weight(kg)/quanitity: ");
+			int qty = scan.nextInt();
+			
+			// check duplicates, stock level before adding
+			if(qty > productList.get(selected).stockLv){
+				System.out.println("Check your quantity! It's great than the stock level!");
+			}else{
+				checkDuplicatesBeforeAdd(productList.get(selected), qty);
+			}		
+			
+			System.out.println("\n Go back(Y/N)? Press Y for exist.");
+		}while(exit != 'Y' && exit != 'y');
 	}
 	
-	private void sendStaffLogin() throws RemoteException, SQLException {
+	public void sendStaffLogin() throws RemoteException, SQLException {
 	    System.out.print("Enter Staff ID : ");  
 	    String userID = scan.nextLine();
 	    S3UserType userType = S3User.checkUserType(userID); 
@@ -199,7 +234,7 @@ public class S3Application implements S3CustomerMenuIF{
 	    }
 	}
 	
-	private void receiveStaffLogin(List<?> data) {
+	public void receiveStaffLogin(List<?> data) {
 		if (data == null || data.size() == 0) {
 			System.out.println("Staff does not exit"); 
 		} else {
@@ -216,7 +251,7 @@ public class S3Application implements S3CustomerMenuIF{
 		}
 	}
 	
-	private void onPurchase() throws RemoteException, SQLException {
+	public void onPurchase() throws RemoteException, SQLException {
 	    System.out.print("Enter Customer ID : ");  
 	    String userID = scan.nextLine();
 	    S3UserType userType = S3User.checkUserType(userID); 
@@ -228,19 +263,58 @@ public class S3Application implements S3CustomerMenuIF{
 	    }
 	}
 	
-	private void onReceiveCustomer(List<?> data) {
+	public void onReceiveCustomer(List<?> data) throws RemoteException, SQLException {
 		if (data == null || data.size() == 0) {
 			System.out.println("Customer does not exit"); 
 		} else {
 			S3Customer c = new S3Customer((Map<?, ?>) data.get(0));
 			System.out.println("Customer: " + c.getID() + " Balance: " + c.getBalance() + " Credit Point: " + c.getPoint());
 			//Show final result
+			System.out.println("All the selected items: ");
 			
-			System.out.println("Continue to buy(y/n)");
-			char ch = scan.nextLine().charAt(0);
-			if (ch == 'y') {
-				// update database customer info and product info
+			printProdInCart();
+			
+			// get total price
+			double totalCost = getTotalPrice(productInCart, c.getPoint());
+			
+			// compare with customer balance
+			double newBalance = c.getBalance() - totalCost;
+			int newPoint = c.getPoint() - (int)(c.getPoint()/20) + (int)(totalCost/10);
+			
+			if(c.getBalance() >= totalCost){
+				System.out.println("\n No cancellation permits, continue to buy(y/n)");
+				char ch = scan.nextLine().charAt(0);
+				if (ch == 'y') {
+					// update database customer info and product info
+					customerController.updateBalance(c.getID(), newBalance);
+					customerController.updatePoint(c.getID(), newPoint);
+					// update dataBase product stockLevel
+					for(Map.Entry<S3Product, Integer> entry : productInCart.entrySet()){
+						 S3Product product = entry.getKey();
+						 int qty = entry.getValue();
+						 
+						 int newStockLv = product.stockLv - qty;
+						 productController.updateStockLevel(product.barcode, newStockLv);
+					}
+					// !!!!!!!!!!!!update transaction table 
+					
+					// !!!!!!!!!!!!update order item table
+					
+					// clear prodInCart list
+					productInCart.clear();
+			}else{
+				return;
 			}
+			
+			}
+		}
+	}
+	
+	public void printProdInCart(){
+		for (Map.Entry<S3Product, Integer> entry : productInCart.entrySet()) {
+		    S3Product product = entry.getKey();
+		    double qty = entry.getValue();
+		    System.out.println("\nProduct ID: " + product.barcode + "Product name: " + product.name + "Quantity (kg/serving): " + qty + "\n");
 		}
 	}
 	
@@ -291,9 +365,6 @@ public class S3Application implements S3CustomerMenuIF{
 				menu.onReceiveData(taskType, (List<?>) data);
 			} else {
 				switch (taskType) {
-				case S3Const.TASK_SHOW_ALL_PRODUCTS:
-					onShowAllProducts((List<?>) data);
-					break;
 				case S3Const.TASK_SHOW_STAFF_BY_ID:
 					receiveStaffLogin((List<?>) data);
 					break;
@@ -363,112 +434,13 @@ public class S3Application implements S3CustomerMenuIF{
 		productController.postGetAllProduct(S3Const.TASK_SYNC_PRODUCT);
 	}
 	
-	//------------------------------need to arrangement--------------------------------------------------
-	
+	//------------------------------Talk to xxxxControllers for SQL tasks --------------------------------------------------
+	// ????????????? OrderItemo
 	public static void changeBulkSalePlan(int planNo, int planItem, double value){
 		S3OrderItemController.bulkSalePlan[planNo-1][planItem-1] = value;
 	}
 	
-	// Get all the product information
-	public void postShowAllProducts() throws RemoteException, SQLException {
-		productController.postGetAllProduct(S3Const.TASK_SHOW_ALL_PRODUCTS);
-	}
-	
-	public void onShowAllProducts( List<?> data ) {
-		if(data != null && data.size() != 0){
-			String barcode;
-			String name;
-			double price;
-			int promotion;
-			double discount;
-			int stockLv;
-			int replenishLv;
-			String supplier;
-			
-			productList.clear();
-			
-			for(int i = 0; i < data.size(); i++){
-				Map row = (Map)data.get(i);
-				barcode = (String)row.get(S3Const.TABLE_PRODUCT_ID);
-				name = (String)row.get(S3Const.TABLE_PRODUCT_NAME);
-				price = (double)row.get(S3Const.TABLE_PRODUCT_PRICE);
-				promotion = (int)row.get(S3Const.TABLE_PRODUCT_PROMOTION);
-				discount = (double)row.get(S3Const.TABLE_PRODUCT_DISCOUNT);
-				stockLv = (int)row.get(S3Const.TABLE_PRODUCT_STOCK_LV);
-				replenishLv = (int)row.get(S3Const.TABLE_PRODUCT_REPLENISH_LV);
-				supplier = (String)row.get(S3Const.TABLE_PRODUCT_SUPPLIER);
-				S3Product prod = new S3Product(barcode, name, price, promotion, discount, stockLv, replenishLv, supplier);
-				productList.add(prod);
-			}
-		}
-	}
 
-	// Get one product information by the given ID
-	public void postShowProductByID(String productID) throws RemoteException, SQLException{
-		productController.postGetProductInfoByID(productID, S3Const.TASK_SHOW_PROD_BY_ID);
-	}
-	
-	public void onShowProductByID(List<?> data){
-		if(data != null && data.size() != 0){
-			String barcode;
-			String name;
-			double price;
-			int promotion;
-			double discount;
-			int stockLv;
-			int replenishLv;
-			String supplier;
-			
-			productList.clear();
-			for(int i = 0; i < data.size(); i++){
-				Map row = (Map)data.get(i);
-				barcode = (String)row.get(S3Const.TABLE_PRODUCT_ID);
-				name = (String)row.get(S3Const.TABLE_PRODUCT_NAME);
-				price = (double)row.get(S3Const.TABLE_PRODUCT_PRICE);
-				promotion = (int)row.get(S3Const.TABLE_PRODUCT_PROMOTION);
-				discount = (double)row.get(S3Const.TABLE_PRODUCT_DISCOUNT);
-				stockLv = (int)row.get(S3Const.TABLE_PRODUCT_STOCK_LV);
-				replenishLv = (int)row.get(S3Const.TABLE_PRODUCT_REPLENISH_LV);
-				supplier = (String)row.get(S3Const.TABLE_PRODUCT_SUPPLIER);
-				S3Product prod = new S3Product(barcode, name, price, promotion, discount, stockLv, replenishLv, supplier);
-				productList.add(prod);
-			}
-		}
-	}
-
-
-	// Get one customer information by the given ID
-	public void postShowCustomerByID(String custID) throws RemoteException, SQLException{
-		customerController.onGetCustomerInfoByID(custID, S3Const.TASK_SHOW_CUSTOMER_BY_ID);
-	} 
-
-	public void onShowCustomerByID(List<?> data){
-		if(data != null && data.size() != 0){
-			Map row = (Map)data.get(0);
-			String id = (String)row.get(S3Const.TABLE_USER_ID);
-			double balance = (double)row.get(S3Const.TABLE_CUSTOMER_BALANCE);
-			int points = (int)row.get(S3Const.TABLE_CUSTOMER_POINT);
-			S3Customer targetCust = new S3Customer(id, balance, points);
-			customerList.clear();
-			customerList.add(targetCust);
-		}
-	}
-	
-	//	Get one staff member information by the given ID
-	public void postShowStaffByID(String staffID) throws RemoteException, SQLException{
-		customerController.onGetCustomerInfoByID(staffID, S3Const.TASK_SHOW_STAFF_BY_ID);
-	}
-	
-	public void onShowStaffByID(List<?> data){
-		if(data.size() != 0){
-			Map row = (Map)data.get(0);
-			String id = (String)row.get(S3Const.TABLE_USER_ID);
-			int type = (int)row.get(S3Const.TABLE_STAFF_TYPE);
-			S3Staff targetStaff = new S3Staff(id,type);
-			staffList.clear();
-			staffList.add(targetStaff);
-		}
-	}
 
 	// Get transaction on a given date
 	public void postShowTransactionByDate(Date date)throws RemoteException, SQLException{
@@ -493,7 +465,7 @@ public class S3Application implements S3CustomerMenuIF{
 				// !!!!!!!!! Date-related
 				date = (Date)row.get(S3Const.TABLE_TRANSACTION_DATE);
 				custID = (String)row.get(S3Const.TABLE_TRANSACTION_CUST_ID);
-				Transaction transaction = new Transaction(id, cost, date, custID);
+				S3Transaction transaction = new S3Transaction(id, cost, date, custID);
 				
 				transactList.add(transaction);
 			}
@@ -501,73 +473,50 @@ public class S3Application implements S3CustomerMenuIF{
 	}
 	
 	
-// ----- Transaction-related calculation--------
-
-	public double checkPromotionRate(int planID, double qty){
-		if(qty > 30){
-			return S3OrderItemController.bulkSalePlan[planID][2];
-		}else if(qty > 20){
-			return S3OrderItemController.bulkSalePlan[planID][1];
-		}else if(qty > 10){
-			return S3OrderItemController.bulkSalePlan[planID][0];
-		}else 
-			return 0.0;
-	}
 	
-	public double priceAfterDiscount(double price, double discount){
-		return price*(1-discount);
-	}
-		
-	public double priceAfterPromotion(int promotion, double qty, double price){
-		return (1 - checkPromotionRate(promotion, qty)) * price; 
-	}
+	// ----- Transaction-related calculation--------
 
-	public double priceAfterCustPoints(int points, double price){
-		if((price - (int)(points/20)* 5) >= 0)
-			return (price - (int)(points/20)* 5);
-		else 
-			return 0.0;
-	}
-	
-	// to get the total price based on the given (product + qty)
-	public double getTotalPrice(HashMap<S3Product, Double> orderList, int custPoints){
-		double cost = 0.0;
-		double priceInProgress = 0.0;
-		
-		for(Map.Entry<S3Product, Double> entry : orderList.entrySet()){
-			S3Product prod = entry.getKey();
-			double qty = entry.getValue();
-			
-			priceInProgress = priceAfterDiscount(prod.price,prod.discount);
-			priceInProgress = priceAfterPromotion(prod.promotion, qty, priceInProgress);
-			priceInProgress = priceInProgress * qty;
-			cost += priceInProgress;
+		public double checkPromotionRate(int planID, double qty){
+			if(qty > 30){
+				return S3OrderItemController.bulkSalePlan[planID][2];
+			}else if(qty > 20){
+				return S3OrderItemController.bulkSalePlan[planID][1];
+			}else if(qty > 10){
+				return S3OrderItemController.bulkSalePlan[planID][0];
+			}else 
+				return 0.0;
 		}
-		cost = priceAfterCustPoints(custPoints, cost);
-		return cost;
-	}
-
-	@Override
-	public double calcTotalCost(ArrayList<S3Product> prodInCart, S3Customer customer) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public void postShowSaleStaffByID(String staffID) throws RemoteException, SQLException {
-		// TODO Auto-generated method stub
 		
-	}
+		public double priceAfterDiscount(double price, double discount){
+			return price*(1-discount);
+		}
+			
+		public double priceAfterPromotion(int promotion, double qty, double price){
+			return (1 - checkPromotionRate(promotion, qty)) * price; 
+		}
 
-	@Override
-	public void postUpdateCustomerByID(S3Customer customer) throws RemoteException, SQLException {
-		// TODO Auto-generated method stub
+		public double priceAfterCustPoints(int points, double price){
+			if((price - (int)(points/20)* 5) >= 0)
+				return (price - (int)(points/20)* 5);
+			else 
+				return 0.0;
+		}		
 		
-	}
-
-	@Override
-	public void postUpdateProductStockLevel(ArrayList<S3Product> products) throws RemoteException, SQLException {
-		// TODO Auto-generated method stub
-		
-	}
+		// to get the total price based on the given (product + qty)
+		public double getTotalPrice(HashMap<S3Product, Integer> orderList, int custPoints){
+			double cost = 0.0;
+			double priceInProgress = 0.0;
+			
+			for(Map.Entry<S3Product, Integer> entry : orderList.entrySet()){
+				S3Product prod = entry.getKey();
+				double qty = entry.getValue();
+				
+				priceInProgress = priceAfterDiscount(prod.price,prod.discount);
+				priceInProgress = priceAfterPromotion(prod.promotion, qty, priceInProgress);
+				priceInProgress = priceInProgress * qty;
+				cost += priceInProgress;
+			}
+			cost = priceAfterCustPoints(custPoints, cost);
+			return cost;
+		}
 }

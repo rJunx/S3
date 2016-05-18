@@ -18,33 +18,96 @@ public class S3SaleStaffMenu extends S3Menu {
 	@Override
 	void run() throws RemoteException, SQLException {
 		// TODO Auto-generated method stub
-		int optionNumber;//option number from menu, selected by user
+		char option;//option number from menu, selected by user
 		
 		do{
 			System.out.println();
 			System.out.println("								User:" + app.getCurrentUser().getID());
-			System.out.println("1.Update User Balance");
-			System.out.println("8.Logout ");
+			System.out.println("\n\n\n\t\tSale Staff Menu\n");
+			System.out.println("\tCreate New Members					1");
+			System.out.println("\tUpdate User Balance					2");
+			System.out.println("\tDelete Products in Cart				3");
+			System.out.println("\tCancel Current Transaction			4");
+			System.out.println("\tLogout								e");
+			
 			System.out.print("Please enter your option: ");
-			optionNumber = scan.nextInt();
+			option = scan.nextLine().charAt(0);
+			
 
-			switch (optionNumber){
-			case 1:
-				updateBalance();
+			switch (option){
+			case '1':
+				onCreateNewMember();
 				break;
-			case 2:
+			case '2':
+				onUpdateBalance();
 				break;
-			case 3:
+			case '3':
+				onDeleteProdInCart();
 				break;
-			case 8:
+			case '4':
+				onCancelTransaction();
+				break;
+			case 'e':
 				app.logout();
 				break;
 			default:
 				System.out.println("Please enter a valid option.");
 			} 
-		}while (optionNumber!=8);
+		}while (option!= 'e');
 	}
-
+	
+	// ??? How to name the customer ID???????? No need to add "C" at the beginning?
+	public void onCreateNewMember() throws RemoteException, SQLException{
+			boolean flag = true;
+			String id = "";
+			do {
+				try {
+					System.out.println("Please enter member ID: ");
+					id = scan.next();
+					flag = false;
+					
+					if (S3User.checkUserType(id) != S3UserType.CUSTOMER) {  //  should be "=="????
+						throw new Exception();
+					}
+				} catch(Exception e) {
+					flag = true;
+					System.out.println("Invalid staff ID.");
+				}
+			} while (flag);
+		
+			int balance = this.fetchIntFromInput("Please enter balance: ", "Balance has to be integer! Please re-input!");
+			app.getCustomerController().create(id, 0, balance);
+	}
+	
+	public void onDeleteProdInCart(){
+		System.out.println("The product items in cart: ");
+		app.printProdInCart();
+		
+		System.out.println("Please enter the ID of the product to be deleted: ");
+		String id = scan.nextLine();
+		
+		Boolean existed = false;
+			
+		for (S3Product product : app.getProdInCart().keySet()) {
+			if(product.barcode.equals(id)){
+				 existed = true;
+				 app.getProdInCart().remove(product);
+				 break;
+			 }
+		}
+		if(existed == false){
+			System.out.println("Invalid product ID!");
+		}
+	}
+	
+	public void onCancelTransaction(){
+		System.out.println("Are you sure to cancel the current transaction? (Y/N)");
+		char ch = scan.nextLine().charAt(0);
+		if(ch == 'y' || ch == 'Y'){
+			app.getProdInCart().clear();
+		}
+	}
+	
 	@Override
 	public void onReceiveData(int taskType, List<?> data) throws RemoteException, SQLException {
 		// TODO Auto-generated method stub
@@ -55,7 +118,7 @@ public class S3SaleStaffMenu extends S3Menu {
 			} else {
 				S3Customer c = new S3Customer((Map<?, ?>) data.get(0));
 				double value = this.fetchDoubleFromInput("Please input top up value", "Invalid number.");
-				app.getCUstomerController().updateBalance(c.getID(), c.getBalance()+value);
+				app.getCustomerController().updateBalance(c.getID(), c.getBalance()+value);
 			}
 			break;
 			default:
@@ -63,7 +126,7 @@ public class S3SaleStaffMenu extends S3Menu {
 		}
 	}
 	
-	public void updateBalance() throws RemoteException, SQLException {
+	public void onUpdateBalance() throws RemoteException, SQLException {
 		boolean flag = true;
 		String id = "";
 		do {
@@ -81,6 +144,6 @@ public class S3SaleStaffMenu extends S3Menu {
 			}
 		} while (flag);
 		
-		app.getCUstomerController().onGetCustomerInfoByID(id, S3Const.TASK_TOP_UP_CUSTOMER);
+		app.getCustomerController().onGetCustomerInfoByID(id, S3Const.TASK_TOP_UP_CUSTOMER);
 	}
 }
