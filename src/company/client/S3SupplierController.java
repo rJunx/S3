@@ -28,7 +28,7 @@ public class S3SupplierController {
 		Map<String, Object> values = new HashMap<String, Object>();
 		values.put(key, value);
 		
-		server.doTask(uuid, taskType, S3Const.CLASS_TASK_NAME, S3Const.TABLE_SUPPLIER, S3TableOPType.UPDATE, values, conditions);
+		server.doTask(uuid, taskType, S3Const.CLASS_BASIC_TABLE_CONTROL_TASK, S3Const.TABLE_SUPPLIER, S3TableOPType.UPDATE, values, conditions);
 	}
 	
 	public void create(String supplier, String email) throws RemoteException, SQLException{
@@ -36,7 +36,7 @@ public class S3SupplierController {
 		values.add(supplier);
 		values.add(email);
 		
-		server.doTask(uuid, S3Const.CLASS_TASK_NAME, S3TableOPType.INSERT, null);
+		server.doTask(uuid, S3Const.CLASS_BASIC_TABLE_CONTROL_TASK, S3TableOPType.INSERT, null);
 	}
 	
 	public void onGetSupplierByID(String ID, int taskType){

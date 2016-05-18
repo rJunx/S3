@@ -37,9 +37,14 @@ public abstract class S3Const {
 	public static final String TABLE_SUPPLY_QUANTITY = "QUANTITY";
 	public static final String TABLE_SUPPLY_DATE = "SUPPLY_DATE";
 	
+	public static final String TABLE_ORDERITEM_TRANS_ID = "trans_id";
+	public static final String TABLE_ORDERITEM_BARCODE = "prod_barcode";
 	public static final String TABLE_ORDERITEM_QTY = "QUANTITY";
 	
-	public static final String CLASS_TASK_NAME = "company.server.S3TableControlTask";
+	public static final String TABLE_COUNT_RESULT = "COUNT(*)";
+	
+	public static final String CLASS_BASIC_TABLE_CONTROL_TASK = "company.server.S3TableControlTask";
+	public static final String CLASS_TRANSATION_TASK = "company.server.S3TransationTask";
 	
 	public static final int MENU_CUSTOMER = 0;
 	public static final int MENU_MANAGER = 1;

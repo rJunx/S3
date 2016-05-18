@@ -35,7 +35,7 @@ public class S3OrderItemController {
 		values.add(ProdID);
 		values.add(quantity);
 		
-		server.doTask(uuid, S3Const.CLASS_TASK_NAME, S3Const.TABLE_ORDERITEM, S3TableOPType.INSERT, values, null);
+		server.doTask(uuid, S3Const.CLASS_BASIC_TABLE_CONTROL_TASK, S3Const.TABLE_ORDERITEM, S3TableOPType.INSERT, values, null);
 	}
 	
 	public void updateOrderItemQty(String TransID, String ProdID, String qty, Object value) throws RemoteException, SQLException{
@@ -46,7 +46,7 @@ public class S3OrderItemController {
 		Map<String, Object> values = new HashMap<String, Object>();
 		values.put(qty, values);
 		
-		server.doTask(uuid, S3Const.CLASS_TASK_NAME, S3Const.TABLE_ORDERITEM, S3TableOPType.UPDATE, values, conditions);
+		server.doTask(uuid, S3Const.CLASS_BASIC_TABLE_CONTROL_TASK, S3Const.TABLE_ORDERITEM, S3TableOPType.UPDATE, values, conditions);
 	}
 }
 	

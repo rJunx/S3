@@ -11,7 +11,8 @@ import com.server.S3ServerIF;
 
 public abstract class S3DBTask implements S3TaskIF {
 	private List<HashMap<String, Object>> retList = null;
-
+	private String sqlStatement = "";
+	
 	public Object getResult() {
 		return retList;
 	}
@@ -42,5 +43,11 @@ public abstract class S3DBTask implements S3TaskIF {
 			}
 	}
 
-	protected abstract String getSQLStatement();
+	public void setSQLStatement(String sql) {
+		sqlStatement = sql;
+	}
+	
+	protected String getSQLStatement() {
+		return sqlStatement;
+	}
 }

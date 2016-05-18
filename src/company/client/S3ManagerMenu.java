@@ -163,8 +163,6 @@ public class S3ManagerMenu extends S3Menu {
 		}
 	}
 	
-
-	
 	private void onUpdatePrice() throws RemoteException, SQLException {
 		S3Product p = fecthProductByInput();
 		double price = fetchDoubleFromInput("Please enter product price", "Invaild number.");

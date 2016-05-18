@@ -19,7 +19,9 @@ import com.client.S3ClientIF;
 import com.server.S3Server;
 
 import company.S3Const;
+import company.S3TableOPType;
 import company.client.S3ProductController;
+import company.server.S3TableControlTask;
 
 public class S3ProductControllerTest implements S3ClientIF {
 	private static String uuid = UUID.randomUUID().toString();
@@ -90,6 +92,18 @@ public class S3ProductControllerTest implements S3ClientIF {
 		controller.create("0000000004", "Product_4", newPrice, newStockLv, newRepenishLv, 0, 0);
 		controller.postGetProductInfoByID("0000000004", S3Const.TASK_SHOW_PROD_BY_ID);
 	}
+	
+	@Test
+	public void testCount() throws Exception {
+		S3TableControlTask countTask = new S3TableControlTask(S3Const.TABLE_PRODUCT, S3TableOPType.COUNT, null, null);
+		countTask.run(server);
+		List<?> result = (List<?>)countTask.getResult();
+		
+		BigDecimal count = (BigDecimal)((Map<?, ?>)result.get(0)).get(S3Const.TABLE_COUNT_RESULT);
+		
+		System.out.print(count);
+	}
+	
 	
 	@Override
 	public void receiveMsg(String msg) throws RemoteException {

@@ -123,6 +123,10 @@ public class S3TableControlTask extends S3DBTask {
 			return insert( (List<?>)opArgs0 );
 		}
 		
+		if (opType == S3TableOPType.COUNT) {
+			return String.format("SELECT COUNT(*) FROM %s", tableName); 
+		}
+		
 		return null;
 	}
 

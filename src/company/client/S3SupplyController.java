@@ -27,7 +27,7 @@ public class S3SupplyController {
 		values.add(quantity);
 		values.add(date);
 		
-		server.doTask(uuid, S3Const.CLASS_TASK_NAME, S3Const.TABLE_SUPPLY, S3TableOPType.INSERT, values, null);
+		server.doTask(uuid, S3Const.CLASS_BASIC_TABLE_CONTROL_TASK, S3Const.TABLE_SUPPLY, S3TableOPType.INSERT, values, null);
 	}
 	
 	public void onGetSupplyByDate(java.sql.Date date){

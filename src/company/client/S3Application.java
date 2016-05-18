@@ -68,14 +68,14 @@ public class S3Application{
 	
 	//Basic function for unknown user
 	public char menu() {
-		System.out.println("\n\n\n\t\tOrder Processing System\n");
-		System.out.println("\tSearch Product by ID					1");
-		System.out.println("\tSearch Product by List				2");
-		System.out.println("\tSelect Product by Key-in ID			3");
-		System.out.println("\tSelect Product from Name List			4");
-		System.out.println("\tPay(Customer Log-in Required)			5");
-		System.out.println("\tStaff Log-in							6");
-		System.out.println("\tExit									e");
+		System.out.println("\tSearch Product by ID\t\t\t1");
+		System.out.println("\tSearch Product by List\t\t\t2");
+		System.out.println("\tShow All Product\t\t\t3");
+		System.out.println("\tSelect Product by Key-In ID\t\t4");
+		System.out.println("\tSelect Product from Name List\t\t5");
+		System.out.println("\tPay(Customer Log-in Required)\t\t6");
+		System.out.println("\tStaff Log-in\t\t\t\t7");
+		System.out.println("\tExit\t\t\t\t\te");
 		System.out.println("\n\t**************************************");
 		System.out.print("\tYour choice : ");
 		char ch = scan.nextLine().charAt(0);
@@ -99,15 +99,18 @@ public class S3Application{
 					mSearcyProdByList();
 					break;
 				case '3':
-					mSelectProdByID();
+					showAllProduct();
 					break;
 				case '4':
-					mSelectProdByList();
+					mSelectProdByID();
 					break;
 				case '5':
-					onPurchase();
+					mSelectProdByList();
 					break;
 				case '6':
+					onPurchase();
+					break;
+				case '7':
 					sendStaffLogin();
 					break;
 				}
@@ -118,6 +121,22 @@ public class S3Application{
 	public void waitForRes() {
 		System.out.println("\nPress enter to continue");
 		scan.nextLine();
+	}
+	
+	private void showAllProduct() {
+		int l = productList.size();
+		
+		System.out.println("barcode" + "\t"
+						+"name" + "\t"
+						+"price" + "\t"
+						+"stock level" + "\t"
+						+"discount" + "\t"
+						+"promotion" + "\t"
+		);
+		for (int i = 0; i < l; i++) {
+			S3Product p = productList.get(i);
+			System.out.println(p.barcode + '\t' + p.name + '\t' + p.price + '\t' + p.stockLv + '\t' + p.discount + '\t' + p.promotion);
+		}
 	}
 	
 	public void mSearcyProdByList() {
@@ -302,10 +321,9 @@ public class S3Application{
 					
 					// clear prodInCart list
 					productInCart.clear();
-			}else{
-				return;
-			}
-			
+				}else{
+					return;
+				}
 			}
 		}
 	}
