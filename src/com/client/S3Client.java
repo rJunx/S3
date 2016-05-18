@@ -14,7 +14,6 @@ public class S3Client extends UnicastRemoteObject implements S3ClientIF, Runnabl
 	private S3ServerIF server;
 	private String name = null;
 	private UUID id = null;
-	private Scanner scanner = new Scanner( System.in );
 	private S3Application app = null;
 	
 	public S3Client( String name, S3ServerIF server ) throws RemoteException {
@@ -31,7 +30,6 @@ public class S3Client extends UnicastRemoteObject implements S3ClientIF, Runnabl
 	
 	protected void finalize() {
 		try {
-			scanner.close();
 			server.unregisterClient( getUUID() );
 		} catch (RemoteException e) {
 			// TODO Auto-generated catch block
