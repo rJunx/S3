@@ -126,16 +126,12 @@ public class S3Application{
 	private void showAllProduct() {
 		int l = productList.size();
 		
-		System.out.println("barcode" + "\t"
-						+"name" + "\t"
-						+"price" + "\t"
-						+"stock level" + "\t"
-						+"discount" + "\t"
-						+"promotion" + "\t"
-		);
+		System.out.println();
+		System.out.println(String.format("%12s%12s%10s%10s%10s%10s", "barcode", "name", "price($)", "stock level", "discount", "promotion"));
 		for (int i = 0; i < l; i++) {
 			S3Product p = productList.get(i);
-			System.out.println(p.barcode + '\t' + p.name + '\t' + p.price + '\t' + p.stockLv + '\t' + p.discount + '\t' + p.promotion);
+			System.out.println(String.format("%12s%12s%10.2f%10d%10d%10d%10d", p.barcode, p.name, p.price, p.stockLv, p.discount, p.promotion));
+			//System.out.println(p.barcode + '\t' + p.name + '\t' + p.price + '\t' + p.stockLv + '\t' + p.discount + '\t' + p.promotion);
 		}
 	}
 	
