@@ -1,6 +1,7 @@
 package company.server;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -15,22 +16,25 @@ import company.client.S3Customer;
 import company.client.S3OrderItem;
 import company.client.S3Product;
 import company.client.S3Transaction;
+import company.client.S3TransactionCalculation;
 
 import java.math.BigDecimal;
 
-public class S3TransationTask implements S3TaskIF {
+public class S3TransactionTask implements S3TaskIF {
 	private S3Transaction transInfo = null;
 	private List<S3OrderItem> orderList = new ArrayList<S3OrderItem>();
+
 	
 	//how to use:
 	//In the client, call server.doTask(clientUUID, S3Const.CLASS_TRANSATION_TASK, transation, orders );
 	//transation ---> {S3Const.TABLE_TRANSACTION_CUST_ID : xxxxxx }
 	//item in orders ---> { S3Const.TABLE_ORDERITEM_BARCODE : xxxxxx, S3Const.TABLE_ORDERITEM_QTY : xx }
-	public S3TransationTask(Map<?, ?> transation, List<?> orders) {
+	public S3TransactionTask(Map<?, ?> transation, List<?> orders) {
 		// TODO Auto-generated constructor stub
 		transInfo = new S3Transaction(transation);
 		
 		for (int i = 0; i < orders.size(); i++) {
+			
 			orderList.add(new S3OrderItem((Map<?, ?>)orders.get(i)));
 		}
 	}
@@ -38,45 +42,68 @@ public class S3TransationTask implements S3TaskIF {
 	@Override
 	public void run(S3ServerIF server) throws Exception {
 		// TODO Auto-generated method stub
-
+		
 		Map<String, S3Product> prodInfo = getProductListInfo(server);
+		List<S3Product> prodList = new ArrayList<S3Product>(prodInfo.values());
 		
 		List<Object> invalidOrder = checkOrder(prodInfo);
 		
-		if (invalidOrder == null) {
-			double totalPrice = calTotalPrice(prodInfo);
+		
+		if (invalidOrder.size() == 0) {
+			
 			S3Customer cInfo = getCustomerInfo(server);
 			
 			
 			//do the calculation and get the result
-			
-			
-			//updateCustomerInfo(cInfo, server);			
-			//updateProductInfo(prodInfo, server);
-			//insertTransation(cost, cInfo, prodInfo, server);
-			
+			S3TransactionCalculation transCal = new S3TransactionCalculation(cInfo, orderList);
+			double totalCost = transCal.getTotalCost(prodList);
+			double newBalance = cInfo.getBalance() - totalCost;
+			if(newBalance < 0){
+				// Joon to finish "Insufficient balance" scenario
+				
+			}
+			else{
+				// update customer
+				int newCustPoints = cInfo.getPoint() - transCal.getTotalPointsConsumed(cInfo) + transCal.getTotalPointsEarned(totalCost);
+				cInfo.changeBalance(newBalance);
+				cInfo.changePoint(newCustPoints);
+				updateCustomerInfo(cInfo, server);
+				
+				// update products
+				for(int i = 0; i < this.orderList.size(); i++){
+					String barcode = orderList.get(i).barCode;
+					
+					prodInfo.get(barcode).stockLv -= orderList.get(i).qty; // !!!!!Joon to decide whether to consider "Insufficient storage" scenario
+				}
+				updateProductInfo(prodInfo, server);
+				
+				// update transaction
+				insertTransation(totalCost, server);
+			}
 		} else {
 			
 		}
 	}
 	
 	private void insertTransation(double cost, S3ServerIF server) throws Exception {
-		S3TableControlTask countTask = new S3TableControlTask(S3Const.TABLE_CUSTOMER, S3TableOPType.COUNT, null, null);
+		S3TableControlTask countTask = new S3TableControlTask(S3Const.TABLE_TRANSACTION, S3TableOPType.COUNT, null, null);
 		countTask.run(server);
 		
 		List<?> result = (List<?>)countTask.getResult();
 		BigDecimal count = (BigDecimal)((Map<?, ?>)result.get(0)).get(S3Const.TABLE_COUNT_RESULT);
-		count.add(new BigDecimal(1));
+		count = count.add(new BigDecimal(1));
 		
 		transInfo.id = count.toString();
+		transInfo.date = new Date();
+		transInfo.cost = cost;
 		
-		Map<String, Object> values = new HashMap<String, Object>();
+		List<Object> values = new ArrayList<Object>();
 		transInfo.fillRawData(values);
 		
-		S3TableControlTask insertTask = new S3TableControlTask(S3Const.TABLE_TRANSACTION, S3TableOPType.UPDATE, values, null);
+		S3TableControlTask insertTask = new S3TableControlTask(S3Const.TABLE_TRANSACTION, S3TableOPType.INSERT, values, null);
 		insertTask.run(server);
 		
-		values = new HashMap<String, Object>();
+		values = new ArrayList<Object>();
 		
 		for (int i = 0; i < orderList.size(); i++) {
 			S3OrderItem order = orderList.get(i);
@@ -84,7 +111,7 @@ public class S3TransationTask implements S3TaskIF {
 			
 			order.fillRawData(values);
 			
-			insertTask = new S3TableControlTask(S3Const.TABLE_TRANSACTION, S3TableOPType.UPDATE, values, null);
+			insertTask = new S3TableControlTask(S3Const.TABLE_ORDERITEM, S3TableOPType.INSERT, values, null);
 			insertTask.run(server);
 		}
 	}
@@ -163,11 +190,7 @@ public class S3TransationTask implements S3TaskIF {
 		return invalidOrder;
 	}
 	
-	private double calTotalPrice(Map<String, S3Product> prodInfo) {
-		int total = 0;
-		
-		return total;
-	}
+
 
 	@Override
 	public Object getResult() {

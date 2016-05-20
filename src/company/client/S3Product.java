@@ -14,6 +14,7 @@ public class S3Product {
 	public int replenishLv;
 	public String supplier;
 	
+	// Constructor
 	public S3Product(String barcode, String name, double price, int promotion, double discount, int stockLv, int replenishLv, String supplier){
 		this.barcode= barcode;
 		this.name = name;

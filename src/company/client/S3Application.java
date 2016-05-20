@@ -68,6 +68,7 @@ public class S3Application{
 	
 	//Basic function for unknown user
 	public char menu() {
+		System.out.println("\t\t Supermarket Support System \t\t");
 		System.out.println("\tSearch Product by ID\t\t\t1");
 		System.out.println("\tSearch Product by List\t\t\t2");
 		System.out.println("\tShow All Product\t\t\t3");
@@ -78,7 +79,7 @@ public class S3Application{
 		System.out.println("\tExit\t\t\t\t\te");
 		System.out.println("\n\t**************************************");
 		System.out.print("\tYour choice : ");
-		char ch = scan.nextLine().charAt(0);
+		char ch = scan.next().charAt(0);
 		return ch;
 	}
 	
@@ -120,7 +121,7 @@ public class S3Application{
 	
 	public void waitForRes() {
 		System.out.println("\nPress enter to continue");
-		scan.nextLine();
+		scan.next();
 	}
 	
 	private void showAllProduct() {
@@ -151,6 +152,7 @@ public class S3Application{
 			printOneProductInfo(productList.get(selected));
 			
 			System.out.println("\n Go back(Y/N)? Press Y for exist.");
+			exit = scan.next().charAt(0);
 		}while(exit != 'Y' && exit != 'y');
 		
 	}
@@ -171,8 +173,8 @@ public class S3Application{
 	public void mSearchProdByID(){
 		char exit = ' ';
 		do{
-			System.out.println("Please key-in product code: ");
-			String prodID = scan.nextLine();
+			System.out.print("Please key-in product code: ");
+			String prodID = scan.next();
 			S3Product product = getProductByBarcode(prodID);	
 			
 			if(product != null){
@@ -181,6 +183,7 @@ public class S3Application{
 				System.out.println("Invalid product ID! Retry please!");
 			}
 			System.out.println("\n Go back(Y/N)? Press Y for exist.");	
+			exit = scan.next().charAt(0);
 		}while(exit != 'Y' && exit != 'y');
 	}
 	
@@ -188,7 +191,7 @@ public class S3Application{
 		char exit = ' ';
 		do{
 			System.out.println("Please key-in product code: ");
-			String prodID = scan.nextLine();
+			String prodID = scan.next();
 			S3Product product = getProductByBarcode(prodID);	
 			
 			if(product == null)
@@ -205,7 +208,8 @@ public class S3Application{
 				checkDuplicatesBeforeAdd(product, qty);
 			}	
 			
-			System.out.println("\n Go back(Y/N)? Press Y for exist.");	
+			System.out.println("\n Go back(Y/N)? Press Y for exist.");
+			exit = scan.next().charAt(0);
 		}while(exit != 'Y' && exit != 'y');
 	}
 	
@@ -238,12 +242,13 @@ public class S3Application{
 			}		
 			
 			System.out.println("\n Go back(Y/N)? Press Y for exist.");
+			exit = scan.next().charAt(0);
 		}while(exit != 'Y' && exit != 'y');
 	}
 	
 	public void sendStaffLogin() throws RemoteException, SQLException {
 	    System.out.print("Enter Staff ID : ");  
-	    String userID = scan.nextLine();
+	    String userID = scan.next();
 	    S3UserType userType = S3User.checkUserType(userID); 
 	    	
 	    if (userType == S3UserType.STAFF) {
@@ -272,7 +277,7 @@ public class S3Application{
 	
 	public void onPurchase() throws RemoteException, SQLException {
 	    System.out.print("Enter Customer ID : ");  
-	    String userID = scan.nextLine();
+	    String userID = scan.next();
 	    S3UserType userType = S3User.checkUserType(userID); 
 	    	
 	    if (userType == S3UserType.CUSTOMER) {
@@ -283,8 +288,10 @@ public class S3Application{
 	}
 	
 	public void onReceiveCustomer(List<?> data) throws RemoteException, SQLException {
+		
 		if (data == null || data.size() == 0) {
 			System.out.println("Customer does not exit"); 
+			return;
 		} else {
 			S3Customer c = new S3Customer((Map<?, ?>) data.get(0));
 			System.out.println("Customer: " + c.getID() + " Balance: " + c.getBalance() + " Credit Point: " + c.getPoint());
@@ -302,25 +309,9 @@ public class S3Application{
 			
 			if(c.getBalance() >= totalCost){
 				System.out.println("\n No cancellation permits, continue to buy(y/n)");
-				char ch = scan.nextLine().charAt(0);
+				char ch = scan.next().charAt(0);
 				if (ch == 'y') {
-					// update database customer info and product info
-					customerController.updateBalance(c.getID(), newBalance);
-					customerController.updatePoint(c.getID(), newPoint);
-					// update dataBase product stockLevel
-					for(Map.Entry<S3Product, Integer> entry : productInCart.entrySet()){
-						 S3Product product = entry.getKey();
-						 int qty = entry.getValue();
-						 
-						 int newStockLv = product.stockLv - qty;
-						 productController.updateStockLevel(product.barcode, newStockLv);
-					}
-					// !!!!!!!!!!!!update transaction table 
-					
-					// !!!!!!!!!!!!update order item table
-					
-					// clear prodInCart list
-					productInCart.clear();
+					this.transactionController.purchase(S3Const.TASK_TRANSACTION_PURCHASE, c, productInCart);
 				}else{
 					return;
 				}
@@ -388,6 +379,10 @@ public class S3Application{
 					break;
 				case S3Const.TASK_SHOW_CUSTOMER_BY_ID:
 					onReceiveCustomer((List<?>) data);
+					break;
+				case S3Const.TASK_TRANSACTION_PURCHASE:
+					// clear prodInCart list
+					productInCart.clear();
 					break;
 				default:
 					break;
@@ -491,7 +486,6 @@ public class S3Application{
 	}
 	
 	
-	
 	// ----- Transaction-related calculation--------
 
 		public double checkPromotionRate(int planID, double qty){
@@ -506,7 +500,7 @@ public class S3Application{
 		}
 		
 		public double priceAfterDiscount(double price, double discount){
-			return price*(1-discount);
+			return price*(1-discount/100);
 		}
 			
 		public double priceAfterPromotion(int promotion, double qty, double price){
