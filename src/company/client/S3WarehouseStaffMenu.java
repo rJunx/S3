@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Scanner;
 
 import company.S3Const;
+import company.S3Product;
 
 public class S3WarehouseStaffMenu extends S3Menu {
 
@@ -18,27 +19,31 @@ public class S3WarehouseStaffMenu extends S3Menu {
 	@Override
 	void run() throws RemoteException, SQLException {
 		// TODO Auto-generated method stub
-		int optionNumber;//option number from menu, selected by user
+		int option;//option number from menu, selected by user
 		
 		do{
-			System.out.println();
-			System.out.println("								User:" + app.getCurrentUser().getID());
-			System.out.println("1.Add Product Stock Level");
-			System.out.println("2.Logout ");
-			System.out.print("Please enter your option: ");
-			optionNumber = scan.nextInt();
+			String fm = "\t%-40s%-3s";
+			System.out.println(String.format("\n%49s", "Staff: " + app.getCurrentUser().getID()));
+			System.out.println("\t\t Manager Menu \t\t");
+			
+			System.out.println(String.format(fm, "Add Product Stock Level", "1"));
+			System.out.println(String.format(fm, "Log Out", "0"));
+			
+			System.out.println("\n\t******************************************");
+			System.out.print("\tYour choice : ");
+			option = scan.nextInt();
 
-			switch (optionNumber){
+			switch (option){
 			case 1:
 				addProductStockLevel();
 				break;
-			case 2:
+			case 0:
 				app.logout();
 				break;
 			default:
 				System.out.println("Please enter a valid option.");
 			} 
-		}while (optionNumber!= 2);
+		}while (option != 0);
 
 	}
 	

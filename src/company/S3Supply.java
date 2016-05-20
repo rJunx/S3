@@ -1,4 +1,4 @@
-package company.client;
+package company;
 
 import java.util.Date;
 

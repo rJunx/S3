@@ -1,9 +1,7 @@
-package company.client;
+package company;
 
 import java.math.BigDecimal;
 import java.util.Map;
-
-import company.S3Const;
 
 public class S3Customer extends S3User {
 	

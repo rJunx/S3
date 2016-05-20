@@ -6,6 +6,9 @@ import java.util.List;
 import java.util.Map;
 
 import company.S3Const;
+import company.S3Customer;
+import company.S3Product;
+import company.S3User;
 import company.S3UserType;
 
 public class S3SaleStaffMenu extends S3Menu {
@@ -18,42 +21,43 @@ public class S3SaleStaffMenu extends S3Menu {
 	@Override
 	void run() throws RemoteException, SQLException {
 		// TODO Auto-generated method stub
-		char option;//option number from menu, selected by user
+		int option;//option number from menu, selected by user
 		
 		do{
-			System.out.println();
-			System.out.println("								User:" + app.getCurrentUser().getID());
-			System.out.println("\n\n\n\t\tSale Staff Menu\n");
-			System.out.println("\tCreate New Members					1");
-			System.out.println("\tUpdate User Balance					2");
-			System.out.println("\tDelete Products in Cart				3");
-			System.out.println("\tCancel Current Transaction			4");
-			System.out.println("\tLogout								e");
+			String fm = "\t%-40s%-3s";
+			System.out.println(String.format("\n%49s", "Staff: " + app.getCurrentUser().getID()));
+			System.out.println("\t\t Sale Staff Menu \t\t");
 			
-			System.out.print("Please enter your option: ");
-			option = scan.nextLine().charAt(0);
-			
+			System.out.println(String.format(fm, "Create New Members", "1"));
+			System.out.println(String.format(fm, "Update User Balance", "2"));
+			System.out.println(String.format(fm, "Delete Products in Cart", "3"));
+			System.out.println(String.format(fm, "Cancel Current Transaction", "4"));
+			System.out.println(String.format(fm, "Log Out", "0"));
+
+			System.out.println("\n\t******************************************");
+			System.out.print("\tYour choice : ");
+			option = scan.nextInt();
 
 			switch (option){
-			case '1':
+			case 1:
 				onCreateNewMember();
 				break;
-			case '2':
+			case 2:
 				onUpdateBalance();
 				break;
-			case '3':
+			case 3:
 				onDeleteProdInCart();
 				break;
-			case '4':
+			case 4:
 				onCancelTransaction();
 				break;
-			case 'e':
+			case 0:
 				app.logout();
 				break;
 			default:
 				System.out.println("Please enter a valid option.");
 			} 
-		}while (option!= 'e');
+		}while (option != 0);
 	}
 	
 	// ??? How to name the customer ID???????? No need to add "C" at the beginning?
@@ -84,7 +88,7 @@ public class S3SaleStaffMenu extends S3Menu {
 		app.printProdInCart();
 		
 		System.out.println("Please enter the ID of the product to be deleted: ");
-		String id = scan.nextLine();
+		String id = scan.next();
 		
 		Boolean existed = false;
 			
@@ -102,7 +106,7 @@ public class S3SaleStaffMenu extends S3Menu {
 	
 	public void onCancelTransaction(){
 		System.out.println("Are you sure to cancel the current transaction? (Y/N)");
-		char ch = scan.nextLine().charAt(0);
+		char ch = scan.next().charAt(0);
 		if(ch == 'y' || ch == 'Y'){
 			app.getProdInCart().clear();
 		}

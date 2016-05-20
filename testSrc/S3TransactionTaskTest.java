@@ -17,8 +17,8 @@ import org.junit.Test;
 import com.server.S3Server;
 
 import company.S3Const;
+import company.S3OrderItem;
 import company.S3TableOPType;
-import company.client.S3OrderItem;
 import company.server.S3TableControlTask;
 import company.server.S3TransactionTask;
 

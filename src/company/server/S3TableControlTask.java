@@ -89,6 +89,7 @@ public class S3TableControlTask extends S3DBTask {
 	protected String insert(List<?> data) {
 		int size = data.size();
 		String vs = "";
+		String sf = "TO_DATE('%s', '%s')";
 		
 		for (int i = 0; i < size; i++) {
 			Object v = data.get(i);
@@ -96,7 +97,7 @@ public class S3TableControlTask extends S3DBTask {
 			if (v instanceof String) {
 				vs += ("'" + v + "'");
 			} else if (v instanceof java.sql.Date) {
-				vs += "TO_DATE('"+ v +"', 'yyyy-mm-dd')";
+				vs += String.format(sf, v, S3Const.DATE_FORMAT);
 			} 
 			else {
 				vs += v;
