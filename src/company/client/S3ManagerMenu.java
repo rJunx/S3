@@ -3,10 +3,13 @@ package company.client;
 import java.rmi.RemoteException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import company.S3Const;
+import company.S3Product;
 import company.S3StaffType;
+import company.S3User;
 import company.S3UserType;
 
 public class S3ManagerMenu extends S3Menu {
@@ -23,26 +26,29 @@ public class S3ManagerMenu extends S3Menu {
 		
 		int option = -1;
 		do{
-			System.out.println("\n								User:" + app.getCurrentUser().getID());
-			System.out.println("\n\n\n\t\tManager Menu \n");
-			System.out.println("\tUpdate Unit Price						1");
-			System.out.println("\tUpdate Stock Level					2");
-			System.out.println("\tUpdate Product Promotion Plan			3");
-			System.out.println("\tUpdate Supplier Information			4");
-			System.out.println("\tUpdate Product Discount				5");
-			System.out.println("\tUpdate Product Replenish Level		6");
-//			System.out.println("\tUpdate Product Re-order Level			7");	// need to update database first
+			String fm = "\t%-40s%-3s";
+			System.out.println(String.format("\n%49s", "Staff: " + app.getCurrentUser().getID()));
+			System.out.println("\t\t Manager Menu \t\t");
 			
-			System.out.println("\tGenerate Sales Report					8");
-			System.out.println("\tGenerate Purchase Order Report		9");
-			System.out.println("\tGenerate Supply Report				10"); //do not have enough info to work out the out of scope supplies
-			System.out.println("\tGenerate Best-Seller Report			11");
-			System.out.println("\tShow All Product Informaiton			12");
+			System.out.println(String.format(fm, "Update Unit Price", "1"));
+			System.out.println(String.format(fm, "Update Stock Level", "2"));
+			System.out.println(String.format(fm, "Update Product Promotion Plan", "3"));
+			System.out.println(String.format(fm, "Update Supplier Information", "4"));
+			System.out.println(String.format(fm, "Update Product Discount", "5"));
+			System.out.println(String.format(fm, "Update Product Replenish Level", "6"));
+//			System.out.println(String.format(fm, "Update Product Re-order Level", "7")); // need to update database first
 			
-			System.out.println("\n\tAdd Product							13");
-			System.out.println("\tAdd Staff								14");
-
-			System.out.println("\n\tLog Out								0");
+			System.out.println(String.format(fm, "Generate Sales Report", "8"));
+			//System.out.println(String.format(fm, "Generate Purchase Order Report", "9"));
+			System.out.println(String.format(fm, "Generate Supply Report", "10"));
+			System.out.println(String.format(fm, "Generate Best-Seller Report", "11"));
+			System.out.println(String.format(fm, "Show All Product Informaiton", "12"));
+			System.out.println(String.format(fm, "Add Product", "13"));
+			System.out.println(String.format(fm, "Add Staff", "14"));
+			
+			System.out.println(String.format(fm, "tLog Out", "0"));
+			System.out.println("\n\t******************************************");
+			System.out.print("\tYour choice : ");
 
 			option = scan.nextInt();
 
@@ -68,12 +74,15 @@ public class S3ManagerMenu extends S3Menu {
 			case 7:
 				break;
 			case 8:
+				onGenSalesReport();
 				break;
 			case 9:
 				break;
 			case 10:
+				onGenSupplyReport();
 				break;
 			case 11:
+				onGenBestSellerReport();
 				break;
 			case 12:
 				onShowAllProductInfo();
@@ -92,6 +101,24 @@ public class S3ManagerMenu extends S3Menu {
 				System.out.println("Please enter a valid option.");
 			} 
 		}while (option != 0);
+	}
+	
+	private void onGenSalesReport() throws RemoteException, SQLException {
+		Date start = fetchDateFromInput("Please enter start date(yyyy-mm-dd):", "Invalid date.");
+		Date end = fetchDateFromInput("Please enter end date(yyyy-mm-dd):", "Invalid date.");
+		app.getReportController().generateSalesReport(S3Const.TASK_SALES_REPORT, start, end);
+	}
+	
+	private void onGenSupplyReport() throws RemoteException, SQLException {
+		Date start = fetchDateFromInput("Please enter start date(yyyy-mm-dd):", "Invalid date.");
+		Date end = fetchDateFromInput("Please enter end date(yyyy-mm-dd):", "Invalid date.");
+		app.getReportController().generateSupplyReport(S3Const.TASK_SUPPLY_REPORT, start, end);
+	}
+	
+	private void onGenBestSellerReport() throws RemoteException, SQLException {
+		Date start = fetchDateFromInput("Please enter start date(yyyy-mm-dd):", "Invalid date.");
+		Date end = fetchDateFromInput("Please enter end date(yyyy-mm-dd):", "Invalid date.");
+		app.getReportController().generateTop10SellerReport(S3Const.TASK_TOP_SELLER_REPORT, start, end);
 	}
 	
 	// How to name the staff? No need to add anything at the front?
@@ -146,21 +173,7 @@ public class S3ManagerMenu extends S3Menu {
 	}
 	
 	private void onShowAllProductInfo() {
-		ArrayList<S3Product> plist = app.getProductList();
-		int l = plist.size();
-		
-		System.out.println("barcode" + "\t"
-						+"name" + "\t"
-						+"price" + "\t"
-						+"stock level" + "\t"
-						+"replenish level" + "\t"
-						+"discount" + "\t"
-						+"promotion" + "\t"
-		);
-		for (int i = 0; i < l; i++) {
-			S3Product p = plist.get(i);
-			System.out.println(p.barcode + '\t' + p.name + '\t' + p.price + '\t' + p.stockLv + '\t' + p.replenishLv + '\t' + p.discount + '\t' + p.promotion);
-		}
+		app.showAllProduct();
 	}
 	
 	private void onUpdatePrice() throws RemoteException, SQLException {
@@ -197,6 +210,12 @@ public class S3ManagerMenu extends S3Menu {
 	public void onReceiveData(int taskType, List<?> data) throws RemoteException, SQLException {
 		switch(taskType) {
 		case S3Const.TASK_UPDATE_PRODUCT_PRICE:
+			break;
+		//Print the report
+		case S3Const.TASK_SUPPLY_REPORT:
+		case S3Const.TASK_TOP_SELLER_REPORT:
+		case S3Const.TASK_SALES_REPORT:
+			System.out.println(data);
 			break;
 			default:
 				break;

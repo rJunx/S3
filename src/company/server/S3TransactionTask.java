@@ -11,19 +11,19 @@ import com.common.S3TaskIF;
 import com.server.S3ServerIF;
 
 import company.S3Const;
+import company.S3Customer;
+import company.S3OrderItem;
+import company.S3Product;
 import company.S3TableOPType;
-import company.client.S3Customer;
-import company.client.S3OrderItem;
-import company.client.S3Product;
-import company.client.S3Transaction;
-import company.client.S3TransactionCalculation;
+import company.S3Transaction;
+import company.S3TransactionCalculation;
 
 import java.math.BigDecimal;
 
 public class S3TransactionTask implements S3TaskIF {
 	private S3Transaction transInfo = null;
 	private List<S3OrderItem> orderList = new ArrayList<S3OrderItem>();
-
+	private List<Object> ret = new ArrayList<Object>();
 	
 	//how to use:
 	//In the client, call server.doTask(clientUUID, S3Const.CLASS_TRANSATION_TASK, transation, orders );
@@ -72,8 +72,12 @@ public class S3TransactionTask implements S3TaskIF {
 				// update products
 				for(int i = 0; i < this.orderList.size(); i++){
 					String barcode = orderList.get(i).barCode;
+					S3Product p = prodInfo.get(barcode);
+					p.stockLv -= orderList.get(i).qty;
 					
-					prodInfo.get(barcode).stockLv -= orderList.get(i).qty; // !!!!!Joon to decide whether to consider "Insufficient storage" scenario
+					Map<String, Object> rawData = new HashMap<String, Object>();
+					p.fillRawData(rawData);
+					ret.add(rawData);
 				}
 				updateProductInfo(prodInfo, server);
 				
@@ -191,11 +195,10 @@ public class S3TransactionTask implements S3TaskIF {
 	}
 	
 
-
 	@Override
 	public Object getResult() {
 		// TODO Auto-generated method stub
-		return null;
+		return ret;
 	}
 
 }

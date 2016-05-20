@@ -1,4 +1,4 @@
-package company.client;
+package company;
 
 public class S3Supplier {
 	// local variables

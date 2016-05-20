@@ -1,9 +1,11 @@
-package company.client;
+package company;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import company.client.S3PromotionPlan;
 
 public class S3TransactionCalculation {
 	// local variables

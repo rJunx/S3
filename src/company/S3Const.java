@@ -45,6 +45,13 @@ public abstract class S3Const {
 	public static final String CLASS_BASIC_TABLE_CONTROL_TASK = "company.server.S3TableControlTask";
 	public static final String CLASS_TRANSATION_TASK = "company.server.S3TransactionTask";
 	
+	public static final String CLASS_REPORT_SUPPLY_TASK = "company.server.S3SupplyReportTask";
+	public static final String CLASS_REPORT_TOP_TEN_SELLER_TASK = "company.server.SSTop10SellerReportTask";
+	public static final String CLASS_REPORT_SALES_TASK = "company.server.S3SalesReportTask";
+	
+	
+	public static final String DATE_FORMAT = "yyyy-mm-dd";
+	
 	public static final int MENU_CUSTOMER = 0;
 	public static final int MENU_MANAGER = 1;
 	public static final int MENU_SALE_STAFF = 2;
@@ -74,5 +81,8 @@ public abstract class S3Const {
 	public static final int TASK_SHOW_ALL_TRANSACTIONS = 15;
 	public static final int TASK_TRANSACTION_PURCHASE = 16;
 	
+	public static final int TASK_SALES_REPORT = 17;
+	public static final int TASK_SUPPLY_REPORT = 18;
+	public static final int TASK_TOP_SELLER_REPORT = 19;
 }
 

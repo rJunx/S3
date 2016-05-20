@@ -11,7 +11,15 @@ import java.util.Scanner;
 import com.server.S3ServerIF;
 
 import company.S3Const;
+import company.S3Customer;
+import company.S3OrderItem;
+import company.S3Product;
+import company.S3Staff;
 import company.S3StaffType;
+import company.S3Supplier;
+import company.S3Supply;
+import company.S3Transaction;
+import company.S3User;
 import company.S3UserType;
 
 public class S3Application{
@@ -20,6 +28,7 @@ public class S3Application{
 	private S3StaffController staffController;
 	private S3OrderItemController orderController;
 	private S3TransactionController transactionController;
+	private S3ReportController reportController;
 	
 	private ArrayList<S3Product> productList = new ArrayList<S3Product>();
 	private ArrayList<S3Customer> customerList = new ArrayList<S3Customer>();
@@ -47,6 +56,7 @@ public class S3Application{
 		staffController = new S3StaffController( uuid, server );
 		orderController = new S3OrderItemController(uuid, server);
 		transactionController = new S3TransactionController(uuid, server);
+		reportController = new S3ReportController(uuid, server);
 		this.server = server;
 	}
 	
@@ -64,20 +74,22 @@ public class S3Application{
 	public S3ProductController getProductController() {return productController;}
 	public S3CustomerController getCustomerController() {return customerController;}
 	public S3StaffController getStaffController() {return staffController;}
+	public S3ReportController getReportController() {return reportController;}
 	public S3User getCurrentUser() {return user;}
 	
 	//Basic function for unknown user
 	public char menu() {
-		System.out.println("\t\t Supermarket Support System \t\t");
-		System.out.println("\tSearch Product by ID\t\t\t1");
-		System.out.println("\tSearch Product by List\t\t\t2");
-		System.out.println("\tShow All Product\t\t\t3");
-		System.out.println("\tSelect Product by Key-In ID\t\t4");
-		System.out.println("\tSelect Product from Name List\t\t5");
-		System.out.println("\tPay(Customer Log-in Required)\t\t6");
-		System.out.println("\tStaff Log-in\t\t\t\t7");
-		System.out.println("\tExit\t\t\t\t\te");
-		System.out.println("\n\t**************************************");
+		String fm = "\t%-40s%-3s";
+		System.out.println("\n\t\t Supermarket Support System \t\t");
+		System.out.println(String.format(fm, "Search Product by ID", "1"));
+		System.out.println(String.format(fm, "Search Product by List", "2"));
+		System.out.println(String.format(fm, "Show All Product", "3"));
+		System.out.println(String.format(fm, "Select Product by Key-In ID", "4"));
+		System.out.println(String.format(fm, "Select Product from Name List", "5"));
+		System.out.println(String.format(fm, "Pay(Customer Log-in Required)", "6"));
+		System.out.println(String.format(fm, "Staff Log-in", "7"));
+		System.out.println(String.format(fm, "Exit", "e"));
+		System.out.println("\n\t******************************************");
 		System.out.print("\tYour choice : ");
 		char ch = scan.next().charAt(0);
 		return ch;
@@ -124,16 +136,17 @@ public class S3Application{
 		scan.next();
 	}
 	
-	private void showAllProduct() {
+	public void showAllProduct() {
 		int l = productList.size();
 		
 		System.out.println();
-		System.out.println(String.format("%12s%12s%10s%10s%10s%10s", "barcode", "name", "price($)", "stock level", "discount", "promotion"));
+		System.out.println("Products:");
+		System.out.println(String.format("%-15s%-25s%-13s%-16s%-16s%-25s", "barcode", "name", "price($)", "stock level", "discount(%)", "promotion"));
 		for (int i = 0; i < l; i++) {
 			S3Product p = productList.get(i);
-			System.out.println(String.format("%12s%12s%10.2f%10d%10d%10d%10d", p.barcode, p.name, p.price, p.stockLv, p.discount, p.promotion));
-			//System.out.println(p.barcode + '\t' + p.name + '\t' + p.price + '\t' + p.stockLv + '\t' + p.discount + '\t' + p.promotion);
+			System.out.println(String.format("%-15s%-25s%-13.2f%-16d%-16d%-25d", p.barcode, p.name, p.price, p.stockLv, p.discount, p.promotion));
 		}
+		System.out.println();
 	}
 	
 	public void mSearcyProdByList() {
@@ -316,10 +329,12 @@ public class S3Application{
 	}
 	
 	public void printProdInCart(){
+		System.out.println(String.format("%-15s%-25s%-25s", "BarCode", "Name", "Quantity(kg/serving)"));
+		
 		for (Map.Entry<S3Product, Integer> entry : productInCart.entrySet()) {
 		    S3Product product = entry.getKey();
 		    double qty = entry.getValue();
-		    System.out.println("\nProduct ID: " + product.barcode + "Product name: " + product.name + "Quantity (kg/serving): " + qty + "\n");
+		    System.out.println(String.format("%-15s%-25s%-25.2f", product.barcode, product.name, qty));
 		}
 	}
 	
@@ -379,6 +394,10 @@ public class S3Application{
 				case S3Const.TASK_TRANSACTION_PURCHASE:
 					// clear prodInCart list
 					productInCart.clear();
+					HashMap<String, Object> args = new HashMap<>();
+					args.put("taskType", S3Const.TASK_SYNC_PRODUCT);
+					args.put("data", data);
+					server.broadcastMessage(args);
 					break;
 				default:
 					break;

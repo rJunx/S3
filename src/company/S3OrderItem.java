@@ -1,10 +1,8 @@
-package company.client;
+package company;
 
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
-
-import company.S3Const;
 
 public class S3OrderItem {
 	// local variables
@@ -24,7 +22,7 @@ public class S3OrderItem {
 		if (value instanceof BigDecimal) {
 			qty = ((BigDecimal)value).doubleValue();
 		} else {
-			qty = (double) value;
+			qty = Double.parseDouble(value.toString());
 		}
 		
 		barCode = (String)rawData.get(S3Const.TABLE_ORDERITEM_BARCODE);

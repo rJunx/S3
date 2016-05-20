@@ -1,9 +1,6 @@
-package company.client;
+package company;
 
 import java.util.Map;
-
-import company.S3Const;
-import company.S3UserType;
 
 abstract public class S3User {
 	protected String id = null;

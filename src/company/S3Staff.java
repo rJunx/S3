@@ -1,10 +1,7 @@
-package company.client;
+package company;
 
 import java.math.BigDecimal;
 import java.util.Map;
-
-import company.S3Const;
-import company.S3StaffType;
 
 public class S3Staff extends S3User {
 

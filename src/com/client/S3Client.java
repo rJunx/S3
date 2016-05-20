@@ -3,7 +3,6 @@ package com.client;
 import java.lang.reflect.InvocationTargetException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.Scanner;
 import java.util.UUID;
 
 import com.server.S3ServerIF;

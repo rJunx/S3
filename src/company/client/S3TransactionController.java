@@ -12,6 +12,8 @@ import java.util.Scanner;
 import com.server.S3ServerIF;
 
 import company.S3Const;
+import company.S3Customer;
+import company.S3Product;
 import company.S3TableOPType;
 
 public class S3TransactionController {
