@@ -2,6 +2,7 @@ package company.client;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 import company.S3Const;
@@ -15,7 +16,7 @@ public class S3Transaction {
 	public String custID;
 	
 	// constructor
-	public S3Transaction(String id, double cost, Date date, String custID){
+	public S3Transaction(String id, double cost, java.util.Date date, String custID){
 		this.id = id;
 		this.cost =cost;
 		this.date = date;
@@ -24,34 +25,50 @@ public class S3Transaction {
 	
 	public S3Transaction(Map<?, ?> rawData) {
 		Object value = rawData.get(S3Const.TABLE_TRANSACTION_ID);
-		if (id != null) {
+		if (value != null) {
 			id = (String)value;
 		}
 		
 		value = rawData.get(S3Const.TABLE_TRANSACTION_CUST_ID);
-		if (id != null) {
+		if (value != null) {
 			custID = (String)value;
 		}
 		
 		
 		value = rawData.get(S3Const.TABLE_TRANSACTION_DATE);
-		if (id != null) {
+		if (value != null) {
 			//change date
+			date = new Date(((java.sql.Date)value).getTime());
 		}
 		
-		cost = ((BigDecimal)rawData.get(S3Const.TABLE_TRANSACTION_COST)).doubleValue();
+		value = rawData.get(S3Const.TABLE_TRANSACTION_COST);
+		if(value != null){
+			cost = ((BigDecimal)value).doubleValue();
+		}
 	}
 	
-	public void fillMapData(Map<String, Object> mapData) {
+	
+	public void fillRawData(Map<String, Object> mapData) {
 		mapData.put(S3Const.TABLE_TRANSACTION_COST, cost);
 		
 		if (custID != null)
 			mapData.put(S3Const.TABLE_TRANSACTION_CUST_ID, custID);
 
-		if (date != null)
-			mapData.put(S3Const.TABLE_TRANSACTION_DATE, date);
-		
+		if (date != null){
+			java.sql.Date dateSql = new java.sql.Date(date.getTime());
+			mapData.put(S3Const.TABLE_TRANSACTION_DATE, dateSql);
+		}		
 		if (id != null)
 			mapData.put(S3Const.TABLE_TRANSACTION_ID, id);
+	}
+	
+	public void fillRawData(List<Object> listData) {
+		listData.add(id);
+		listData.add(cost);
+		
+		java.sql.Date dateSql = new java.sql.Date(date.getTime());
+		listData.add(dateSql);
+		
+		listData.add(custID);
 	}
 }

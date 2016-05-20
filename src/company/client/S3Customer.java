@@ -43,6 +43,10 @@ public class S3Customer extends S3User {
 	// accessor
 	public double getBalance(){return balance;}
 	public int getPoint(){return point;}
+	
+	// mutator
+	public void changeBalance(double newValue){this.balance = newValue;}
+	public void changePoint(int newValue){this.point = newValue;}
 
 	@Override
 	void update() {

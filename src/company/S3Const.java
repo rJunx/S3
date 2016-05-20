@@ -28,7 +28,6 @@ public abstract class S3Const {
 	public static final String TABLE_TRANSACTION_ID = "ID";
 	public static final String TABLE_TRANSACTION_COST = "COST";
 	public static final String TABLE_TRANSACTION_DATE = "TRANS_DATE";
-	public static final String TABLE_TRANSACTION_TIME = "TRANS_TIME";
 	public static final String TABLE_TRANSACTION_CUST_ID = "CUST_ID";
 	
 	public static final String TABLE_SUPPLIER_ID = "ID";
@@ -44,7 +43,7 @@ public abstract class S3Const {
 	public static final String TABLE_COUNT_RESULT = "COUNT(*)";
 	
 	public static final String CLASS_BASIC_TABLE_CONTROL_TASK = "company.server.S3TableControlTask";
-	public static final String CLASS_TRANSATION_TASK = "company.server.S3TransationTask";
+	public static final String CLASS_TRANSATION_TASK = "company.server.S3TransactionTask";
 	
 	public static final int MENU_CUSTOMER = 0;
 	public static final int MENU_MANAGER = 1;
@@ -71,6 +70,9 @@ public abstract class S3Const {
 	
 	public static final int TASK_TOP_UP_CUSTOMER = 13;
 	public static final int TASK_UPDATE_SUPPLIER = 14;
+	
+	public static final int TASK_SHOW_ALL_TRANSACTIONS = 15;
+	public static final int TASK_TRANSACTION_PURCHASE = 16;
 	
 }
 

@@ -95,7 +95,10 @@ public class S3TableControlTask extends S3DBTask {
 			
 			if (v instanceof String) {
 				vs += ("'" + v + "'");
-			} else {
+			} else if (v instanceof java.sql.Date) {
+				vs += "TO_DATE('"+ v +"', 'yyyy-mm-dd')";
+			} 
+			else {
 				vs += v;
 			}
 			if (i != (size - 1)) {
