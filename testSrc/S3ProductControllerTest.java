@@ -89,7 +89,7 @@ public class S3ProductControllerTest implements S3ClientIF {
 	public void testCreate() throws RemoteException, SQLException {
 		FLAG = 4;
 
-		controller.create("0000000004", "Product_4", newPrice, newStockLv, newRepenishLv, 0, 0);
+		controller.create("0000000004", "Product_4", newPrice, newStockLv, newRepenishLv, 0, 0, null);
 		controller.postGetProductInfoByID("0000000004", S3Const.TASK_SHOW_PROD_BY_ID);
 	}
 	

@@ -18,7 +18,7 @@ public abstract class S3Const {
 	public static final String TABLE_PRODUCT_REPLENISH_LV = "REPLENISHLV";
 	public static final String TABLE_PRODUCT_PROMOTION = "PROMOTION";
 	public static final String TABLE_PRODUCT_DISCOUNT = "DISCOUNT";
-	public static final String TABLE_PRODUCT_SUPPLIER = "SUPPLIER";
+	public static final String TABLE_PRODUCT_SUPPLIER = "SUPPLIER_ID";
 	
 	public static final String TABLE_USER_ID = "ID";
 	public static final String TABLE_CUSTOMER_POINT = "POINT";
@@ -69,7 +69,6 @@ public abstract class S3Const {
 	public static final int TASK_UPDATE_PRODUCT_STOCK_LV = 8;
 	public static final int TASK_UPDATE_PRODUCT_REPLENISH_LV = 9;
 
-	
 	public static final int TASK_SHOW_TRANSACTION_BY_ID = 10;
 	
 	public static final int TASK_SYNC_PRODUCT = 11;
@@ -84,5 +83,7 @@ public abstract class S3Const {
 	public static final int TASK_SALES_REPORT = 17;
 	public static final int TASK_SUPPLY_REPORT = 18;
 	public static final int TASK_TOP_SELLER_REPORT = 19;
+	
+	public static final int TASK_SYNC_SUPPLIER = 20;
 }
 

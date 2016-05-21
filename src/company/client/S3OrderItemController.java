@@ -48,6 +48,21 @@ public class S3OrderItemController {
 		
 		server.doTask(uuid, S3Const.CLASS_BASIC_TABLE_CONTROL_TASK, S3Const.TABLE_ORDERITEM, S3TableOPType.UPDATE, values, conditions);
 	}
+	
+	static public String getPromotionTips(int value) {
+		String v = "";
+		switch(value) {
+		case 0:
+			v = "NONE";
+		case 1:
+			v = "10(10%) 20(20%) 30(30%)";
+		case 2:
+			v = "10(15%) 20(25%) 30(35%)";
+		case 3:
+			v = "10(20%) 20(40%) 30(60%)";
+		}
+		return v;
+	}
 }
 	
 	

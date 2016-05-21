@@ -58,7 +58,7 @@ public class S3ProductController {
 		update(productID, S3Const.TABLE_PRODUCT_REPLENISH_LV, value);
 	}
 	
-	public void create(String productID, String name, double price, int stockLV, int replenishLV, int promotion, int discount) throws RemoteException, SQLException {
+	public void create(String productID, String name, double price, int stockLV, int replenishLV, int promotion, int discount, String supplierID) throws RemoteException, SQLException {
 		List<Object> values = new ArrayList<Object>();
 		values.add(productID);
 		values.add(name); //name
@@ -67,9 +67,19 @@ public class S3ProductController {
 		values.add(replenishLV);	//REPLENISHLV
 		values.add(promotion);	//PROMOTION
 		values.add(discount);	//DISCOUNT
+		values.add(supplierID);	//DISCOUNT
 		
 		server.doTask(uuid, S3Const.CLASS_BASIC_TABLE_CONTROL_TASK, S3Const.TABLE_PRODUCT, S3TableOPType.INSERT, values, null);
 		this.postGetProductInfoByID(productID, S3Const.TASK_SYNC_PRODUCT);
+	}
+	
+	public void createSupplier(String id, String email) throws RemoteException, SQLException  {
+		List<Object> values = new ArrayList<Object>();
+		values.add(id);
+		values.add(email);
+		
+		server.doTask(uuid, S3Const.CLASS_BASIC_TABLE_CONTROL_TASK, S3Const.TABLE_SUPPLIER, S3TableOPType.INSERT, values, null);
+		this.postGetSupplierInfoByID(id, S3Const.TASK_SYNC_SUPPLIER);
 	}
 
 	public void postGetProductInfoByID(String productID, int taskType) throws RemoteException, SQLException {
@@ -79,7 +89,18 @@ public class S3ProductController {
 		server.doTask(uuid, taskType, S3Const.CLASS_BASIC_TABLE_CONTROL_TASK, S3Const.TABLE_PRODUCT, S3TableOPType.SELECT, null, conditions);
 	}
 	
+	public void postGetSupplierInfoByID(String id, int taskType) throws RemoteException, SQLException {
+		Map<String, Object> conditions = new HashMap<String, Object>();
+		conditions.put(S3Const.TABLE_SUPPLIER, id);
+		
+		server.doTask(uuid, taskType, S3Const.CLASS_BASIC_TABLE_CONTROL_TASK, S3Const.TABLE_SUPPLIER, S3TableOPType.SELECT, null, conditions);
+	}
+	
 	public void postGetAllProduct(int taskType) throws RemoteException, SQLException {
 		server.doTask( uuid, taskType, S3Const.CLASS_BASIC_TABLE_CONTROL_TASK, S3Const.TABLE_PRODUCT, S3TableOPType.SELECT, null, null );
+	}
+	
+	public void postGetAllSuppiler(int taskType) throws RemoteException, SQLException {
+		server.doTask( uuid, taskType, S3Const.CLASS_BASIC_TABLE_CONTROL_TASK, S3Const.TABLE_SUPPLIER, S3TableOPType.SELECT, null, null );
 	}
 }

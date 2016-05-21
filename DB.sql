@@ -57,7 +57,6 @@ create table S3T_OrderItem(
 	FOREIGN KEY (prod_barcode) REFERENCES S3T_Product(barcode)
 );
 
-
 create table S3T_Supply(
   	supplier_id char(10),
   	prod_barcode char(10),
@@ -68,10 +67,10 @@ create table S3T_Supply(
 	FOREIGN KEY (prod_barcode) REFERENCES S3T_Product(barcode)
 );
 
-
-
 INSERT INTO S3T_Customer values ('c0000000001', 21, 200);
-INSERT INTO S3T_Staff values ('s0000000001', 0);
-INSERT INTO S3T_Supplier values('s1', 's1@gmail.com.au');
-INSERT INTO S3T_Product values('0000000000', 'Product_000000000000', 10, 1, 10, 100, 10, 's1');
-INSERT INTO S3T_Product values('1234567890', 'Product_000000000001', 20, 2, 20, 200, 20, 's1');
+INSERT INTO S3T_Staff values ('s0000000001', 2);
+INSERT INTO S3T_Staff values ('s0000000002', 1);
+INSERT INTO S3T_Staff values ('s0000000003', 0);
+INSERT INTO S3T_Supplier values('0000000001', 's1@gmail.com.au');
+INSERT INTO S3T_Product values('0000000001', 'Product_0000000001', 10, 1, 10, 100, 10, '0000000001');
+INSERT INTO S3T_Product values('1234567890', 'Product_1234567890', 20, 2, 20, 200, 20, '0000000001');

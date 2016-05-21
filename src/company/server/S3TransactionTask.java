@@ -97,7 +97,7 @@ public class S3TransactionTask implements S3TaskIF {
 		BigDecimal count = (BigDecimal)((Map<?, ?>)result.get(0)).get(S3Const.TABLE_COUNT_RESULT);
 		count = count.add(new BigDecimal(1));
 		
-		transInfo.id = count.toString();
+		transInfo.id = String.format("%010d", count.intValue());
 		transInfo.date = new Date();
 		transInfo.cost = cost;
 		

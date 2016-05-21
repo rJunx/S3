@@ -19,9 +19,9 @@ public class SSTop10SellerReportTask extends S3DBTask {
 		String statement = String.format(
 				"select barcode,name,sum(quantity*price) "
 						+ "from S3T_Transaction, S3T_Product, S3T_OrderItem "
+						//+ "ORDER BY sum(quantity*price) DESC "
 						+ "WHERE S3T_Transaction.ID=S3T_OrderItem.TRANS_ID AND S3T_Product.BARCODE=S3T_OrderItem.PROD_BARCODE AND TRANS_DATE between %s and %s "
 						+ "GROUP BY BARCODE,NAME "
-						+ "ORDER BY sum(quantity*price) "
 						+ "HAVING COUNT(*)<=10", 
 				startDate, endDate);
 		

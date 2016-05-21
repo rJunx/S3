@@ -19,6 +19,7 @@ import company.S3StaffType;
 import company.S3Supplier;
 import company.S3Supply;
 import company.S3Transaction;
+import company.S3TransactionCalculation;
 import company.S3User;
 import company.S3UserType;
 
@@ -40,7 +41,7 @@ public class S3Application{
 	
 	private HashMap<S3Product, Integer> productInCart = new HashMap<S3Product, Integer>();
 	
-	private static final int TOTAL_SYNC_TASK = 1;
+	private static final int TOTAL_SYNC_TASK = 2;
 	private int finished_sync_task = 0;
 	
 	private S3User user;
@@ -141,10 +142,11 @@ public class S3Application{
 		
 		System.out.println();
 		System.out.println("Products:");
-		System.out.println(String.format("%-15s%-25s%-13s%-16s%-16s%-25s", "barcode", "name", "price($)", "stock level", "discount(%)", "promotion"));
+		System.out.println(String.format("%-15s%-25s%-13s%-16s%-16s%-25s%-25s", "barcode", "name", "price($)", "stock level", "discount(%)", "promotion", "Supplier Email"));
 		for (int i = 0; i < l; i++) {
 			S3Product p = productList.get(i);
-			System.out.println(String.format("%-15s%-25s%-13.2f%-16d%-16d%-25d", p.barcode, p.name, p.price, p.stockLv, p.discount, p.promotion));
+			S3Supplier s = this.getSuppilerByID(p.supplier);
+			System.out.println(String.format("%-15s%-25s%-13.2f%-16d%-16d%-25s%-25s", p.barcode, p.name, p.price, p.stockLv, p.discount, S3OrderItemController.getPromotionTips(p.promotion), s.email));
 		}
 		System.out.println();
 	}
@@ -312,9 +314,7 @@ public class S3Application{
 			// get total price
 			double totalCost = getTotalPrice(productInCart, c.getPoint());
 			
-			// compare with customer balance
-			double newBalance = c.getBalance() - totalCost;
-			int newPoint = c.getPoint() - (int)(c.getPoint()/20) + (int)(totalCost/10);
+			System.out.println("Total cost: " + totalCost);
 			
 			if(c.getBalance() >= totalCost){
 				System.out.println("\n No cancellation permits, continue to buy(y/n)");
@@ -356,6 +356,19 @@ public class S3Application{
 		return p;
 	}
 	
+	public S3Supplier getSuppilerByID(String id) {
+		S3Supplier p = null;
+		for (int i = 0; i < supplierList.size(); i++) {
+			p = supplierList.get(i);
+			if(p.id.compareTo(id) == 0) {
+				break; 
+			} else {
+				p = null;
+			}
+		}
+		return p;
+	}
+	
 	//-------------------------------Sync data---------------------------------------------
 	//receive data from server(sender and receiver are the same client)
 	public void onReceiveData(int taskType, Object data) throws Exception {
@@ -364,6 +377,10 @@ public class S3Application{
 			switch (taskType) {
 			case S3Const.TASK_SYNC_PRODUCT:
 				onSyncProduct((List<?>) data);
+				finished_sync_task++;
+				break;
+			case S3Const.TASK_SYNC_SUPPLIER:
+				onSyncSupplier((List<?>) data);
 				finished_sync_task++;
 				break;
 			default:
@@ -376,6 +393,9 @@ public class S3Application{
 				args.put("data", data);
 				switch(taskType) {
 				case S3Const.TASK_SYNC_PRODUCT:
+					server.broadcastMessage(args);
+					break;
+				case S3Const.TASK_SYNC_SUPPLIER:
 					server.broadcastMessage(args);
 					break;
 				}
@@ -415,9 +435,9 @@ public class S3Application{
 		case S3Const.TASK_SYNC_PRODUCT:
 			onSyncProduct((List<?>) data);
 			break;
-		//case S3Const.TASK_SYNC_CUSTOMER:
-		//	onSyncCustomer((List<?>) data);
-		//	break;
+		case S3Const.TASK_SYNC_SUPPLIER:
+			onSyncSupplier((List<?>) data);
+			break;
 		}
 	}
 	
@@ -428,6 +448,35 @@ public class S3Application{
 	//    	((S3Customer)user).update(userInfo);
 	//    }
 	//}
+	
+	private void onSyncSupplier(List<?> data) {
+		if (supplierList.size() == 0) {
+			for(int i = 0; i < data.size(); i++){
+				Map<?, ?> row = (Map<?, ?>)data.get(i);
+				S3Supplier prod = new S3Supplier(row);
+				supplierList.add(prod);
+			}
+		} else {
+			for(int i = 0; i < data.size(); i++){
+				Map<?, ?> row = (Map<?, ?>)data.get(i);
+				String id = (String)row.get(S3Const.TABLE_SUPPLIER_ID);
+				boolean found = false;
+				for (int j = 0; j < supplierList.size(); j++) {
+					S3Supplier p = supplierList.get(j);
+					if (p.id.compareTo(id) == 0) {
+						p.update(row);
+						found = true;
+						break;
+					}
+				}
+				
+				if(!found) {
+					S3Supplier prod = new S3Supplier(row);
+					supplierList.add(prod);
+				}
+			}
+		}
+	}
 	
 	private void onSyncProduct(List<?> data) {
 		if (productList.size() == 0) {
@@ -460,6 +509,7 @@ public class S3Application{
 
 	private void syncAllData() throws RemoteException, SQLException {
 		productController.postGetAllProduct(S3Const.TASK_SYNC_PRODUCT);
+		productController.postGetAllSuppiler(S3Const.TASK_SYNC_SUPPLIER);
 	}
 	
 	//------------------------------Talk to xxxxControllers for SQL tasks --------------------------------------------------

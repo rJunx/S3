@@ -68,7 +68,10 @@ public class S3Product {
 			replenishLv = (int)value;
 		}
 
-		//supplier = (String) row.get(S3Const.TABLE_PRODUCT_SUPPLIER);
+		value = row.get(S3Const.TABLE_PRODUCT_SUPPLIER);
+		if (value != null) {
+			supplier = (String)value;
+		}
 	}
 	
 	public void fillRawData(Map<String, Object> rawData) {
@@ -79,5 +82,6 @@ public class S3Product {
 		rawData.put(S3Const.TABLE_PRODUCT_DISCOUNT, discount);
 		rawData.put(S3Const.TABLE_PRODUCT_STOCK_LV, stockLv);
 		rawData.put(S3Const.TABLE_PRODUCT_REPLENISH_LV, replenishLv);
+		rawData.put(S3Const.TABLE_SUPPLIER_ID, supplier);
 	}
 }
