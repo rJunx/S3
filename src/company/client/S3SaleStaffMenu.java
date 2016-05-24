@@ -60,7 +60,7 @@ public class S3SaleStaffMenu extends S3Menu {
 		}while (option != 0);
 	}
 	
-	// ??? How to name the customer ID???????? No need to add "C" at the beginning?
+	// 
 	public void onCreateNewMember() throws RemoteException, SQLException{
 			boolean flag = true;
 			String id = "";
@@ -75,7 +75,7 @@ public class S3SaleStaffMenu extends S3Menu {
 					}
 				} catch(Exception e) {
 					flag = true;
-					System.out.println("Invalid staff ID.");
+					System.out.println("Invalid! Member ID has to begin with 'c' followed by 10 digits.");
 				}
 			} while (flag);
 		

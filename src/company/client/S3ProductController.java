@@ -63,11 +63,11 @@ public class S3ProductController {
 		values.add(productID);
 		values.add(name); //name
 		values.add(price); 	//PRICE
-		values.add(stockLV);	//STOCKLV
-		values.add(replenishLV);	//REPLENISHLV
 		values.add(promotion);	//PROMOTION
 		values.add(discount);	//DISCOUNT
-		values.add(supplierID);	//DISCOUNT
+		values.add(stockLV);	//STOCKLV
+		values.add(replenishLV);	//REPLENISHLV
+		values.add(supplierID);	//SUPPLIER
 		
 		server.doTask(uuid, S3Const.CLASS_BASIC_TABLE_CONTROL_TASK, S3Const.TABLE_PRODUCT, S3TableOPType.INSERT, values, null);
 		this.postGetProductInfoByID(productID, S3Const.TASK_SYNC_PRODUCT);

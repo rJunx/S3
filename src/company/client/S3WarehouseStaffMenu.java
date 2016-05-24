@@ -24,7 +24,7 @@ public class S3WarehouseStaffMenu extends S3Menu {
 		do{
 			String fm = "\t%-40s%-3s";
 			System.out.println(String.format("\n%49s", "Staff: " + app.getCurrentUser().getID()));
-			System.out.println("\t\t Manager Menu \t\t");
+			System.out.println("\t\t Warehouse Staff Menu \t\t");
 			
 			System.out.println(String.format(fm, "Add Product Stock Level", "1"));
 			System.out.println(String.format(fm, "Log Out", "0"));
@@ -50,7 +50,7 @@ public class S3WarehouseStaffMenu extends S3Menu {
 	public void addProductStockLevel() throws RemoteException, SQLException{
 		// find the product
 		System.out.println("Please type in product ID: ");
-		String id = scan.nextLine();
+		String id = scan.next();
 		S3Product product = app.getProductByBarcode(id);
 		if(product == null){
 			System.out.println("Invalid product ID!");
@@ -58,8 +58,7 @@ public class S3WarehouseStaffMenu extends S3Menu {
 		}
 		
 		// find the delta quantity
-		System.out.println("Please type in quantity: ");
-		int qty = fetchIntFromInput("Please type in quantity: ", "Input has to be integer!");
+		int qty = fetchIntFromInput("Please type in quantity to be added: ", "Input has to be integer!");
 		
 		// update the database
 		int newQty = product.stockLv + qty;

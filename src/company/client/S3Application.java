@@ -82,11 +82,11 @@ public class S3Application{
 	public char menu() {
 		String fm = "\t%-40s%-3s";
 		System.out.println("\n\t\t Supermarket Support System \t\t");
-		System.out.println(String.format(fm, "Search Product by ID", "1"));
-		System.out.println(String.format(fm, "Search Product by List", "2"));
-		System.out.println(String.format(fm, "Show All Product", "3"));
-		System.out.println(String.format(fm, "Select Product by Key-In ID", "4"));
-		System.out.println(String.format(fm, "Select Product from Name List", "5"));
+		System.out.println(String.format(fm, "Search Products by ID", "1"));
+		System.out.println(String.format(fm, "Search Products by List", "2"));
+		System.out.println(String.format(fm, "Show All Products", "3"));
+		System.out.println(String.format(fm, "Select Products by ID", "4"));
+		System.out.println(String.format(fm, "Select Products from List", "5"));
 		System.out.println(String.format(fm, "Pay(Customer Log-in Required)", "6"));
 		System.out.println(String.format(fm, "Staff Log-in", "7"));
 		System.out.println(String.format(fm, "Exit", "e"));
@@ -133,7 +133,7 @@ public class S3Application{
 	}
 	
 	public void waitForRes() {
-		System.out.println("\nPress enter to continue");
+		System.out.println("\nPress enter any key and press ENTER to continue");
 		scan.next();
 	}
 	
@@ -148,34 +148,35 @@ public class S3Application{
 			S3Supplier s = this.getSuppilerByID(p.supplier);
 			System.out.println(String.format("%-15s%-25s%-13.2f%-16d%-16d%-25s%-25s", p.barcode, p.name, p.price, p.stockLv, p.discount, S3OrderItemController.getPromotionTips(p.promotion), s.email));
 		}
-		System.out.println();
+		waitForRes();
 	}
 	
 	public void mSearcyProdByList() {
 		char exit = ' ';
 		
 		do{
-			System.out.print("All the products are list below.");
+			System.out.println("\nAll the products are list below.\n");
 			listAllProducts();
-			System.out.print("Please select the ID for more informaiton.");
-			int selected = scan.nextInt();
+			System.out.print("\nPlease select the ID for more informaiton: ");
+			int selected = scan.nextInt() - 1;
 			
 			printOneProductInfo(productList.get(selected));
 			
-			System.out.println("\n Go back(Y/N)? Press Y for exist.");
+			System.out.println("\nGo back(Y/N)? Press Y for exit. Press other keys to continue..");
 			exit = scan.next().charAt(0);
 		}while(exit != 'Y' && exit != 'y');
 		
 	}
 	
 	public void listAllProducts(){
+		System.out.println("\nIndex\tName");
 		for(int i = 0; i < productList.size(); i++){
-			System.out.println(i + "	" + productList.get(i).name);
+			System.out.println((i+1) + "\t" + productList.get(i).name);
 		}
 	}
 	
 	public void printOneProductInfo(S3Product product){
-		System.out.println("ID: " + product.barcode);
+		System.out.println("\nID: " + product.barcode);
 		System.out.println("Name: " + product.name);
 		System.out.println("Unit Price: " + product.price);
 		System.out.println("Discount:  " + product.discount);
@@ -193,7 +194,7 @@ public class S3Application{
 			}else{
 				System.out.println("Invalid product ID! Retry please!");
 			}
-			System.out.println("\n Go back(Y/N)? Press Y for exist.");	
+			System.out.println("\nGo back(Y/N)? Press Y for exit. Press other keys to continue..");	
 			exit = scan.next().charAt(0);
 		}while(exit != 'Y' && exit != 'y');
 	}
@@ -201,25 +202,26 @@ public class S3Application{
 	public void mSelectProdByID(){
 		char exit = ' ';
 		do{
-			System.out.println("Please key-in product code: ");
+			System.out.print("Please key-in product code: ");
 			String prodID = scan.next();
 			S3Product product = getProductByBarcode(prodID);	
 			
 			if(product == null)
 				System.out.println("Invalid product ID! Retry please!");
-			
-			System.out.println("Please key-in weight(kg)/quanitity: ");
-			int qty = scan.nextInt();
-			
-			// check duplicates, stock level before adding
-			
-			if(qty > product.stockLv){
-				System.out.println("Check your quantity! It's great than the stock level");
-			}else{
-				checkDuplicatesBeforeAdd(product, qty);
+			else{
+				System.out.print("Please key-in weight(kg)/quanitity: ");
+				int qty = scan.nextInt();
+				System.out.println("Items have been added!");
+				
+				// check duplicates, stock level before adding
+				
+				if(qty > product.stockLv){
+					System.out.println("Check your quantity! It's great than the stock level");
+				}else{
+					checkDuplicatesBeforeAdd(product, qty);
+				}	
 			}	
-			
-			System.out.println("\n Go back(Y/N)? Press Y for exist.");
+			System.out.println("\nGo back(Y/N)? Press Y for exit. Press other keys to continue..");
 			exit = scan.next().charAt(0);
 		}while(exit != 'Y' && exit != 'y');
 	}
@@ -237,12 +239,12 @@ public class S3Application{
 		char exit = ' ';
 		
 		do{
-			System.out.print("All the products are list below.");
+			System.out.print("\nAll the products are list below.");
 			listAllProducts();
-			System.out.print("Please select the ID to add in shopping list.");
-			int selected = scan.nextInt();
+			System.out.print("Please select the item index to add in shopping list: ");
+			int selected = scan.nextInt()-1;
 			
-			System.out.println("Please key-in weight(kg)/quanitity: ");
+			System.out.print("Please key-in weight(kg)/quanitity: ");
 			int qty = scan.nextInt();
 			
 			// check duplicates, stock level before adding
@@ -252,7 +254,7 @@ public class S3Application{
 				checkDuplicatesBeforeAdd(productList.get(selected), qty);
 			}		
 			
-			System.out.println("\n Go back(Y/N)? Press Y for exist.");
+			System.out.println("\nGo back(Y/N)? Press Y for exit. Press other keys to continue..");
 			exit = scan.next().charAt(0);
 		}while(exit != 'Y' && exit != 'y');
 	}
@@ -299,28 +301,26 @@ public class S3Application{
 	}
 	
 	public void onReceiveCustomer(List<?> data) throws RemoteException, SQLException {
-		
 		if (data == null || data.size() == 0) {
-			System.out.println("Customer does not exit"); 
+			System.out.println("Customer does not exit");
 			return;
 		} else {
+
 			S3Customer c = new S3Customer((Map<?, ?>) data.get(0));
-			System.out.println("Customer: " + c.getID() + " Balance: " + c.getBalance() + " Credit Point: " + c.getPoint());
+			System.out.println("\nCustomer: " + c.getID() + "\nBalance: " + c.getBalance() + "\nCredit Point: " + c.getPoint());
+
 			//Show final result
-			System.out.println("All the selected items: ");
-			
+			System.out.println("\nAll the selected items: ");
 			printProdInCart();
-			
 			// get total price
 			double totalCost = getTotalPrice(productInCart, c.getPoint());
-			
 			System.out.println("Total cost: " + totalCost);
-			
 			if(c.getBalance() >= totalCost){
-				System.out.println("\n No cancellation permits, continue to buy(y/n)");
+				System.out.println("\nNo cancellation permits, continue to buy(y/n)");
 				char ch = scan.next().charAt(0);
 				if (ch == 'y') {
 					this.transactionController.purchase(S3Const.TASK_TRANSACTION_PURCHASE, c, productInCart);
+					System.out.println("Thanks for shopping with us!");
 				}else{
 					return;
 				}
@@ -407,7 +407,7 @@ public class S3Application{
 				switch (taskType) {
 				case S3Const.TASK_SHOW_STAFF_BY_ID:
 					receiveStaffLogin((List<?>) data);
-					break;
+					break; 
 				case S3Const.TASK_SHOW_CUSTOMER_BY_ID:
 					onReceiveCustomer((List<?>) data);
 					break;
@@ -426,6 +426,8 @@ public class S3Application{
 		}
 	}
 	
+	
+
 	//receive border cast data(server sends the data to all connected clients, mainly for sync data)
 	public void onReceiveBordercastData( int taskType, Object data ) throws RemoteException {
 		if (data == null) {

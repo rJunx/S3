@@ -50,7 +50,7 @@ public class S3ManagerMenu extends S3Menu {
 			System.out.println(String.format(fm, "Add Staff", "14"));
 			System.out.println(String.format(fm, "Add Supplier", "15"));
 			
-			System.out.println(String.format(fm, "tLog Out", "0"));
+			System.out.println(String.format(fm, "Log Out", "0"));
 			System.out.println("\n\t******************************************");
 			System.out.print("\tYour choice : ");
 
